@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,51 +9,90 @@
     android:padding="16dp"
     tools:context="com.komnacki.manualtranslator.WordActivity">
 
-    <EditText
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    </Spinner>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nagraj dziwięk"/>
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_word_play_btn"
-            android:background="?android:selectableItemBackground"/>
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_word_delete_btn"
-            android:background="?android:selectableItemBackground"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Word"
+                android:lines="2"
+                android:maxLines="3"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Translation"
+                android:lines="2"
+                android:maxLines="3"/>
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </Spinner>
 
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Zrob zdjecie"/>
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_word_delete_btn"
-            android:background="?android:selectableItemBackground"/>
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"/>
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="5">
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Nagraj dziwięk"/>
+                    <ImageButton
+                        style="@style/ImageButtonStyle"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_word_play_btn"/>
+                    <ImageButton
+                        style="@style/ImageButtonStyle"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_word_pause_btn"/>
+                    <ImageButton
+                        style="@style/ImageButtonStyle"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_word_stop_btn"/>
+                    <ImageButton
+                        style="@style/ImageButtonStyle"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_word_delete_btn"/>
+                </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="8dp"
+                android:background="@color/colorPrimaryDark"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/btn_word_image_makeImage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:minWidth="160dp"
+                        android:text="Zrob zdjecie"/>
+                    <Button
+                        android:id="@+id/btn_word_image_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_word_delete_btn"
+                        android:text="Usun zdjecie"/>
+            </LinearLayout>
+                    <ImageButton
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:background="?android:selectableItemBackground"
+                        android:src="@drawable/example_image"/>
+        </LinearLayout>
+        </ScrollView>
 </LinearLayout>
