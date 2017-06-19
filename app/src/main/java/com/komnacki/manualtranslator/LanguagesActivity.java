@@ -37,7 +37,7 @@ public class LanguagesActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), WordActivity.class);
+                Intent intent = new Intent(getApplicationContext(), WordsCatalogActivity.class);
                 startActivity(intent);
 
             }

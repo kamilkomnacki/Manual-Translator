@@ -37,7 +37,8 @@
         </activity>
         <activity android:name=".WordsCatalogActivity" />
         <activity android:name=".WordActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"/>
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="stateHidden"/>
     </application>
 
 </manifest>

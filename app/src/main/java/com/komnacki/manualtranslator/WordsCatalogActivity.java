@@ -19,8 +19,12 @@
 
 package com.komnacki.manualtranslator;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class WordsCatalogActivity extends AppCompatActivity {
 
@@ -28,5 +32,29 @@ public class WordsCatalogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_words_catalog);
+
+        ArrayList<Word> exampleListOfWords = new ArrayList<>();
+        exampleListOfWords.add(new Word("fragile", "kruchy"));
+        exampleListOfWords.add(new Word("emphatic", "dobitny"));
+        exampleListOfWords.add(new Word("setbacks", "niepowodzenia"));
+        exampleListOfWords.add(new Word("underlying", "zasadniczy"));
+        exampleListOfWords.add(new Word("assume", "przyjąć"));
+        exampleListOfWords.add(new Word("discrepancy", "rozbieżność"));
+        exampleListOfWords.add(new Word("entrench", "obwarować"));
+        exampleListOfWords.add(new Word("outrageous", "oburzający"));
+        exampleListOfWords.add(new Word("condemned", "potępiony"));
+        exampleListOfWords.add(new Word("scrutiny", "przestudiowanie"));
+        exampleListOfWords.add(new Word("unspoilt", "nieskażony"));
+        exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
+        exampleListOfWords.add(new Word("reluctant", "niechętny"));
+
+        String[] list2 = {"Kamil", "Komnacki", "Legionowo", "Polska", "Mazowieckie", "Europa", "Ziemia", "uniwersytet", "Informatyka", "Projekt", "Praca"};
+
+        ListView list = (ListView) findViewById(R.id.listOfWords);
+
+
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, exampleListOfWords);
+        list.setAdapter(adapter);
+
     }
 }

@@ -19,10 +19,11 @@
 package com.komnacki.manualtranslator;
 
 
-
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 
 public class WordActivity extends AppCompatActivity {
@@ -32,7 +33,26 @@ public class WordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_word);
 
-
-
+        ImageButton imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
+        imgBtn_picture.setOnClickListener(clickListener);
     }
+
+
+
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.word_imgBtn_picture:
+                    showImageOnFullScreen();
+            }
+
+        }
+    };
+
+    private void showImageOnFullScreen() {
+        Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
+    }
+
+
 }

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+/*
         Manual Translator Android Aplication
 
         Copyright (C) 2017 Kamil Komnacki
@@ -16,25 +15,30 @@
 
         You should have received a copy of the GNU General Public License
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
-        -->
+        */
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.komnacki.manualtranslator.WordsCatalogActivity">
+package com.komnacki.manualtranslator;
 
 
+public class Word {
+    private String word;
+    private String translation;
 
-        <ListView
-            android:id="@+id/listOfWords"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </ListView>
+    public Word(String word, String translation){
+        this.word = word;
+        this.translation = translation;
+    }
 
+    public String getWord() {
+        return word;
+    }
 
+    public String getTranslation() {
+        return translation;
+    }
 
-
-</LinearLayout>
+    @Override
+    public String toString() {
+        return (""+word+" "+translation);
+    }
+}
