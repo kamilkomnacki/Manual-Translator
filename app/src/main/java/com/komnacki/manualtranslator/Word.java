@@ -37,8 +37,5 @@ public class Word {
         return translation;
     }
 
-    @Override
-    public String toString() {
-        return (""+word+" "+translation);
-    }
+
 }

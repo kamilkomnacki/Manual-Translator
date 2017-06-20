@@ -26,7 +26,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 
-public class WordActivity extends AppCompatActivity {
+public class WordActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

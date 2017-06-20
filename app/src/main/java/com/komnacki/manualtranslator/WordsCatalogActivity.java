@@ -26,7 +26,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class WordsCatalogActivity extends AppCompatActivity {
+public class WordsCatalogActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +48,16 @@ public class WordsCatalogActivity extends AppCompatActivity {
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
 
-        String[] list2 = {"Kamil", "Komnacki", "Legionowo", "Polska", "Mazowieckie", "Europa", "Ziemia", "uniwersytet", "Informatyka", "Projekt", "Praca"};
+        final String[] list2 = {"Kamil", "Komnacki", "Legionowo", "Polska", "Mazowieckie", "Europa", "Ziemia", "uniwersytet", "Informatyka", "Projekt", "Praca"};
+
 
         ListView list = (ListView) findViewById(R.id.listOfWords);
 
 
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, exampleListOfWords);
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list2);
         list.setAdapter(adapter);
 
+
     }
+
 }
