@@ -39,6 +39,8 @@ public final class WordDbContract {
     private WordDbContract() {}
 
 
+
+
     /**
      * Inner class to define table contents.
      * Each entry in the table represents a single word.
@@ -90,6 +92,8 @@ public final class WordDbContract {
          * Type: TEXT
          */
         public static final String COLUMN_WORD_LANGUAGE = "language";
+
+
 
 
     }

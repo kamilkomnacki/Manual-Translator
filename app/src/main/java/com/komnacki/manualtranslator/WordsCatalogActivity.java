@@ -19,17 +19,25 @@
 
 package com.komnacki.manualtranslator;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
 import java.util.ArrayList;
 
+import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
+
 public class WordsCatalogActivity extends AppCompatActivity{
+
+    private WordDbHelper dbHelper = new WordDbHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,22 +59,95 @@ public class WordsCatalogActivity extends AppCompatActivity{
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
 
-
-        WordDbHelper dbHelper = new WordDbHelper(this);
-        SQLiteDatabase database;
-        database = dbHelper.getReadableDatabase();
-
-
-        final String[] list2 = {"Kamil", "Komnacki", "Legionowo", "Polska", "Mazowieckie", "Europa", "Ziemia", "uniwersytet", "Informatyka", "Projekt", "Praca"};
-
-
-        ListView list = (ListView) findViewById(R.id.listOfWords);
-
-
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list2);
-        list.setAdapter(adapter);
-
-
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayDatabaseInfo();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_words_catalog, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_insert_dummy_data:
+                insertWord();
+                displayDatabaseInfo();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void insertWord() {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(WordDbEntry.COLUMN_WORD_NAME, "gorgeus");
+        contentValues.put(WordDbEntry.COLUMN_WORD_TRANSLATION, "wspaniały");
+        contentValues.put(WordDbEntry.COLUMN_WORD_CATEGORY, "category 1");
+        contentValues.put(WordDbEntry.COLUMN_WORD_LANGUAGE, "language 1");
+
+
+        long newRowId = database.insert(WordDbEntry.TABLE_NAME, null, contentValues);
+        Toast.makeText(getApplicationContext(), "new row: "+newRowId, Toast.LENGTH_SHORT).show();
+    }
+
+    private void displayDatabaseInfo(){
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        TextView displayView = (TextView) findViewById(R.id.displayingData);
+
+        String[] projection = {
+                WordDbEntry._ID,
+                WordDbEntry.COLUMN_WORD_NAME,
+                WordDbEntry.COLUMN_WORD_TRANSLATION
+        };
+
+        Cursor cursor = database.query(
+                WordDbEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+
+        try {
+            displayView.setText("");
+            displayView.append(
+                    WordDbEntry._ID + " - "
+                            + WordDbEntry.COLUMN_WORD_NAME + " - "
+                            + WordDbEntry.COLUMN_WORD_TRANSLATION + " - "
+                            + "\n");
+
+            int idColumnIndex = cursor.getColumnIndex(WordDbEntry._ID);
+            int wordColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
+            int translationColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
+
+
+            while (cursor.moveToNext()) {
+                int currentID = cursor.getInt(idColumnIndex);
+                String currentWord = cursor.getString(wordColumnIndex);
+                String currentTranslation = cursor.getString(translationColumnIndex);
+
+                displayView.append(
+                        "\n" + currentID + " - "
+                                + currentWord + " - "
+                                + currentTranslation);
+
+            }
+        }
+        finally{
+            cursor.close();
+        }
+
+    }
 }

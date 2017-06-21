@@ -73,8 +73,8 @@ public class WordDbHelper extends SQLiteOpenHelper {
                 + WordDbEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + WordDbEntry.COLUMN_WORD_NAME + " TEXT NOT NULL, "
                 + WordDbEntry.COLUMN_WORD_TRANSLATION + " TEXT, "
-                + WordDbEntry.COLUMN_WORD_CATEGORY + " TEXT NOT NULL, " //wprowadz DEFAULT
-                + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT NOT NULL);";
+                + WordDbEntry.COLUMN_WORD_CATEGORY + " TEXT, " //wprowadz DEFAULT
+                + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WORDS_TABLE);
     }
