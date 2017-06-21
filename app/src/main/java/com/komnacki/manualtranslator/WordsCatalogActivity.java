@@ -19,10 +19,13 @@
 
 package com.komnacki.manualtranslator;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.komnacki.manualtranslator.data.WordDbHelper;
 
 import java.util.ArrayList;
 
@@ -47,6 +50,12 @@ public class WordsCatalogActivity extends AppCompatActivity{
         exampleListOfWords.add(new Word("unspoilt", "nieskażony"));
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
+
+
+        WordDbHelper dbHelper = new WordDbHelper(this);
+        SQLiteDatabase database;
+        database = dbHelper.getReadableDatabase();
+
 
         final String[] list2 = {"Kamil", "Komnacki", "Legionowo", "Polska", "Mazowieckie", "Europa", "Ziemia", "uniwersytet", "Informatyka", "Projekt", "Praca"};
 

@@ -43,7 +43,7 @@ public final class WordDbContract {
      * Inner class to define table contents.
      * Each entry in the table represents a single word.
      */
-    public static class WordDbEntry implements BaseColumns{
+    public static final class WordDbEntry implements BaseColumns{
 
         /**
          * Name of database table for words.

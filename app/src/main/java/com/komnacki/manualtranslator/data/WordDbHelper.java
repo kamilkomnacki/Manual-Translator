@@ -22,6 +22,9 @@ package com.komnacki.manualtranslator.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 
 /**
@@ -46,12 +49,13 @@ public class WordDbHelper extends SQLiteOpenHelper {
 
     /**
      * If you change the database schema, you must increment the DATABASE_VERSION.
+     * The onUpgrade() or onDowngrade() method will execute after change version.
      */
     private static final int DATABASE_VERSION = 1;
 
+
     /**
      * Constructs a new instance of {@link WordDbHelper}.
-     *
      * @param context of the app
      */
     public WordDbHelper(Context context) {
@@ -61,22 +65,53 @@ public class WordDbHelper extends SQLiteOpenHelper {
 
     /**
      * This method is called when the database is created for the first time.
-     * @param sqLiteDatabase - instance of database
+     * @param sqLiteDatabase - instance of database use to execute sql statement create.
      */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        String SQL_CREATE_WORDS_TABLE = "CREATE TABLE " + WordDbEntry.TABLE_NAME + " ("
+                + WordDbEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + WordDbEntry.COLUMN_WORD_NAME + " TEXT NOT NULL, "
+                + WordDbEntry.COLUMN_WORD_TRANSLATION + " TEXT, "
+                + WordDbEntry.COLUMN_WORD_CATEGORY + " TEXT NOT NULL, " //wprowadz DEFAULT
+                + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT NOT NULL);";
 
+        sqLiteDatabase.execSQL(SQL_CREATE_WORDS_TABLE);
     }
 
 
     /**
      * This method is called when the database is upgraded.
+     * Firstly, delete old table. After that create new table.
+     * ALL DATA FROM OLD TABLE WILL BE LOST!
      * @param sqLiteDatabase - instance of database
-     * @param oldVersion
-     * @param newVersion
+     * @param oldVersion - not using
+     * @param newVersion - not using
      */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        //For now this database is at verion 1, so there's nothing to do.
+        String SQL_DELETE_WORDS_TABLE = "DROP TABLE IF EXISTS " + WordDbEntry.TABLE_NAME;
+
+        sqLiteDatabase.execSQL(SQL_DELETE_WORDS_TABLE);
+        onCreate(sqLiteDatabase);
+    }
+
+
+
+    /**
+     * This method is called when database version is downgraded.
+     * @param db - instance of database
+     * @param oldVersion - not using
+     * @param newVersion - not using
+     */
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        Log.d(LOG_TAG, "Database reopen.");
+        super.onOpen(db);
     }
 }
