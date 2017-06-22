@@ -39,6 +39,10 @@
         <activity android:name=".WordActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateHidden"/>
+        <provider
+            android:authorities="com.komnacki.manualtranslator"
+            android:name=".data.WordProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

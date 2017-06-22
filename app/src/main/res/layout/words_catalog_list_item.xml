@@ -27,6 +27,6 @@
     <TextView
         android:id="@+id/wordsCatalog_listItem_translate"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

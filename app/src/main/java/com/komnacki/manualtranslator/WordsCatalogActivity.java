@@ -19,15 +19,18 @@
 
 package com.komnacki.manualtranslator;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
@@ -35,9 +38,11 @@ import java.util.ArrayList;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
-public class WordsCatalogActivity extends AppCompatActivity{
+public class WordsCatalogActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     private WordDbHelper dbHelper = new WordDbHelper(this);
+    WordCursorAdapter cursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +64,21 @@ public class WordsCatalogActivity extends AppCompatActivity{
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
 
+        ListView listViewOfWords = (ListView) findViewById(R.id.listOfWords);
+
+        cursorAdapter = new WordCursorAdapter(this, null);
+        listViewOfWords.setAdapter(cursorAdapter);
+
+        getLoaderManager().initLoader(0,null, this);
+
     }
+
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        displayDatabaseInfo();
+        //displayDatabaseInfo();
     }
 
     @Override
@@ -78,7 +92,7 @@ public class WordsCatalogActivity extends AppCompatActivity{
         switch(item.getItemId()){
             case R.id.action_insert_dummy_data:
                 insertWord();
-                displayDatabaseInfo();
+                //displayDatabaseInfo();
                 return true;
         }
 
@@ -95,13 +109,16 @@ public class WordsCatalogActivity extends AppCompatActivity{
         contentValues.put(WordDbEntry.COLUMN_WORD_LANGUAGE, "language 1");
 
 
-        long newRowId = database.insert(WordDbEntry.TABLE_NAME, null, contentValues);
-        Toast.makeText(getApplicationContext(), "new row: "+newRowId, Toast.LENGTH_SHORT).show();
+        //long newRowId = database.insert(WordDbEntry.TABLE_NAME, null, contentValues);
+
+
+        Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
+        //Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();
     }
 
     private void displayDatabaseInfo(){
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        TextView displayView = (TextView) findViewById(R.id.displayingData);
+
 
         String[] projection = {
                 WordDbEntry._ID,
@@ -120,34 +137,34 @@ public class WordsCatalogActivity extends AppCompatActivity{
         );
 
 
-        try {
-            displayView.setText("");
-            displayView.append(
-                    WordDbEntry._ID + " - "
-                            + WordDbEntry.COLUMN_WORD_NAME + " - "
-                            + WordDbEntry.COLUMN_WORD_TRANSLATION + " - "
-                            + "\n");
-
-            int idColumnIndex = cursor.getColumnIndex(WordDbEntry._ID);
-            int wordColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
-            int translationColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
 
 
-            while (cursor.moveToNext()) {
-                int currentID = cursor.getInt(idColumnIndex);
-                String currentWord = cursor.getString(wordColumnIndex);
-                String currentTranslation = cursor.getString(translationColumnIndex);
+    }
 
-                displayView.append(
-                        "\n" + currentID + " - "
-                                + currentWord + " - "
-                                + currentTranslation);
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                WordDbEntry._ID,
+                WordDbEntry.COLUMN_WORD_NAME,
+                WordDbEntry.COLUMN_WORD_TRANSLATION};
 
-            }
-        }
-        finally{
-            cursor.close();
-        }
 
+        return new CursorLoader(
+                this,
+                WordDbEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        cursorAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        cursorAdapter.swapCursor(null);
     }
 }
