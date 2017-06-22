@@ -20,6 +20,8 @@
 package com.komnacki.manualtranslator.data;
 
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -38,7 +40,24 @@ public final class WordDbContract {
      */
     private WordDbContract() {}
 
+    /**
+     * The name for entire ContentProvider, unique on the device.
+     */
+    public static final String CONTENT_AUTHORITY = "com.komnacki.manualtranslator";
 
+
+    /**
+     * The base of all URI's.
+     * Apps will use this to contact the ContentProvider.
+     */
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+
+    /**
+     * Use to create a valid path for looking at word data..
+     * The name of words table.
+     */
+    public static final String PATH = "words";
 
 
     /**
@@ -46,6 +65,26 @@ public final class WordDbContract {
      * Each entry in the table represents a single word.
      */
     public static final class WordDbEntry implements BaseColumns{
+
+        /**
+         * The content URI to access the pet data in the provider.
+         */
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH);
+
+
+        /**
+         * The MIME type of {@link #CONTENT_URI} for a list of words.
+         */
+        public static final String CONTENT_LIST_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH;
+
+
+        /**
+         * The MIME type of {@link #CONTENT_URI} for a single word.
+         */
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH;
+
 
         /**
          * Name of database table for words.
@@ -92,7 +131,6 @@ public final class WordDbContract {
          * Type: TEXT
          */
         public static final String COLUMN_WORD_LANGUAGE = "language";
-
 
 
 
