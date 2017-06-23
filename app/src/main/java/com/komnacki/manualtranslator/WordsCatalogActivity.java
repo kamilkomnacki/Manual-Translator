@@ -49,6 +49,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_words_catalog);
 
+
         ArrayList<Word> exampleListOfWords = new ArrayList<>();
         exampleListOfWords.add(new Word("fragile", "kruchy"));
         exampleListOfWords.add(new Word("emphatic", "dobitny"));
@@ -93,6 +94,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
             case R.id.action_insert_dummy_data:
                 insertWord();
                 //displayDatabaseInfo();
+                return true;
+            case R.id.action_delete_all_data:
                 return true;
         }
 
