@@ -34,16 +34,21 @@ public class WordProvider extends ContentProvider{
 
 
     /**
+     * Database helper object
+     */
+    private WordDbHelper mDbHelper;
+
+    /**
      * Initialize the provider and the database helper object.
+     * Refer to {@link WordDbHelper} constructor.
      * @return
      */
     @Override
     public boolean onCreate() {
-        // TODO: Create and initialize a PetDbHelper object to gain access to the pets database.
-        // Make sure the variable is a global variable, so it can be referenced from other
-        // ContentProvider methods.
+        mDbHelper = new WordDbHelper(getContext());
         return false;
     }
+
 
 
     /**

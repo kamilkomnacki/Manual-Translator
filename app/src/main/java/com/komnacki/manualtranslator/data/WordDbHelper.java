@@ -77,6 +77,7 @@ public class WordDbHelper extends SQLiteOpenHelper {
                 + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WORDS_TABLE);
+        Log.v(LOG_TAG, "Tables have been created successfully.");
     }
 
 
@@ -94,6 +95,7 @@ public class WordDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(SQL_DELETE_WORDS_TABLE);
         onCreate(sqLiteDatabase);
+        Log.d(LOG_TAG, "Tables have been upgraded succesfully.");
     }
 
 
@@ -107,11 +109,13 @@ public class WordDbHelper extends SQLiteOpenHelper {
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
+        Log.d(LOG_TAG, "Tables have been downgraded succesfully.");
     }
 
     @Override
     public void onOpen(SQLiteDatabase db) {
         Log.d(LOG_TAG, "Database reopen.");
         super.onOpen(db);
+        Log.d(LOG_TAG, "Tables have been opened succesfully.");
     }
 }

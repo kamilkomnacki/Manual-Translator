@@ -31,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
@@ -116,7 +117,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
         Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
-        //Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();
     }
 
     private void displayDatabaseInfo(){
