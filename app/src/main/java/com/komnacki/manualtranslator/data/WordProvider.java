@@ -21,8 +21,11 @@ package com.komnacki.manualtranslator.data;
 
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,11 +35,49 @@ public class WordProvider extends ContentProvider{
 
     public static final String LOG_TAG = WordProvider.class.getSimpleName();
 
+    /** URI matcher code for the content URI for the WORDS table.*/
+    private static final int WORDS = 100;
+
+    /** URI matcher code for the content URI for the SINGLE word in the table.*/
+    private static final int WORD_ID = 101;
+
+
 
     /**
      * Database helper object
      */
     private WordDbHelper mDbHelper;
+
+    /**
+     * UriMatcher object to match a content URI to corresponding code.
+     * The input passed into the constructor of UriMatcher
+     * represents the code to return for the URI root.
+     * On the beginning UriMatcher use NO_MATCH input.
+     */
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    static{
+        /**
+         * When method addUri() is called then go here, for all of th content URI patterns that
+         * the provider should recognize. All paths added to the UriMatcher have corresponding code
+         * to return when a match is found.
+         */
+
+        /**
+         * The content URI of the form "content://com.komnacki.manualtranslator/words"
+         * will map to the integer code {@link #WORDS}. This URI is used to provide
+         * access to MULTIPLE rows of the words table.
+         */
+        sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH, WORDS);
+
+        /**
+         * The content URI of the form "content://com.komnacki.manualtranslator/words/# will map
+         * to the integer code {@link #WORD_ID}. This URI is used to provide acces to one single row.
+         *
+         * The "#" (wildcard) is used and it can be substituted for integer.
+         */
+        sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH + "#", WORD_ID);
+    }
 
     /**
      * Initialize the provider and the database helper object.
@@ -46,7 +87,7 @@ public class WordProvider extends ContentProvider{
     @Override
     public boolean onCreate() {
         mDbHelper = new WordDbHelper(getContext());
-        return false;
+        return true;
     }
 
 
@@ -89,7 +130,38 @@ public class WordProvider extends ContentProvider{
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch(match){
+            case WORDS:
+                return insertWord(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    /**
+     * Insert a word into the database with the given content values.
+     * Return the new content URI for that specyfic row in the database.
+     * @param uri
+     * @param contentValues
+     * @return uri
+     */
+    private Uri insertWord(Uri uri, ContentValues contentValues) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        //String name = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_NAME);
+        String name = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_NAME);
+        String translation = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_TRANSLATION);
+        String category = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_CATEGORY);
+        String language = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_LANGUAGE);
+
+        long id = db.insert(WordDbContract.WordDbEntry.TABLE_NAME, null, contentValues);
+        if(id == -1){
+            return null;
+        } else{
+            getContext().getContentResolver().notifyChange(uri, null);
+            return ContentUris.withAppendedId(uri, id);
+        }
     }
 
 

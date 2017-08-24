@@ -104,7 +104,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     }
 
     private void insertWord() {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(WordDbEntry.COLUMN_WORD_NAME, "gorgeus");
