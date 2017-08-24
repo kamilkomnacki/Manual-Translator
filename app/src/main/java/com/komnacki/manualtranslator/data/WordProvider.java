@@ -96,16 +96,47 @@ public class WordProvider extends ContentProvider{
      * Perform the query for the given URI.
      * Use the given projection, selection, selection args and sort order.
      * @param uri
-     * @param strings
-     * @param s
-     * @param strings1
-     * @param s1
-     * @return
+     * @param projection
+     * @param selection
+     * @param selectionArguments
+     * @param sortOrder
+     * @return cursor
      */
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArguments, @Nullable String sortOrder) {
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        Cursor cursor;
+        int match = sUriMatcher.match(uri);
+        switch (match){
+            case WORDS:
+                cursor = database.query(
+                        WordDbContract.WordDbEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        null,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case WORD_ID:
+                selection = WordDbContract.WordDbEntry._ID + "=?";
+                selectionArguments = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                cursor = database.query(
+                        WordDbContract.WordDbEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArguments,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
+        }
+
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
 
 
@@ -117,7 +148,15 @@ public class WordProvider extends ContentProvider{
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        switch (match){
+            case WORDS:
+                return WordDbContract.WordDbEntry.CONTENT_LIST_TYPE;
+            case WORD_ID:
+                return WordDbContract.WordDbEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
+        }
     }
 
 
@@ -138,6 +177,8 @@ public class WordProvider extends ContentProvider{
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
     }
+
+
 
     /**
      * Insert a word into the database with the given content values.

@@ -112,8 +112,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         contentValues.put(WordDbEntry.COLUMN_WORD_LANGUAGE, "language 1");
 
 
-        //long newRowId = database.insert(WordDbEntry.TABLE_NAME, null, contentValues);
-
 
         Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
         Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();

@@ -48,9 +48,12 @@ public class WordCursorAdapter extends CursorAdapter {
 
         int nameColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
         int translationColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
+        int idColumnIndex = cursor.getColumnIndex(WordDbEntry._ID);
 
-        String wordName = cursor.getString(nameColumnIndex);
+        String wordName = cursor.getString(nameColumnIndex) + cursor.getString(idColumnIndex);
         String wordTranslation = cursor.getString(translationColumnIndex);
+
+
 
         nameTextView.setText(wordName);
         translationTextView.setText(wordTranslation);
