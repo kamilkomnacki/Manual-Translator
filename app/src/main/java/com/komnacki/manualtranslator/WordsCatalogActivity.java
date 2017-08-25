@@ -20,8 +20,10 @@
 package com.komnacki.manualtranslator;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,6 +32,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -41,6 +45,9 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordsCatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
+
+    /** Identifier for the word data loader */
+    private static final int WORD_LOADER = 0;
 
     private WordDbHelper dbHelper = new WordDbHelper(this);
     WordCursorAdapter cursorAdapter;
@@ -71,7 +78,18 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
 
-        getLoaderManager().initLoader(0,null, this);
+        listViewOfWords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent(WordsCatalogActivity.this, WordActivity.class);
+                Uri currentWordUri = ContentUris.withAppendedId(WordDbEntry.CONTENT_URI, id);
+
+                intent.setData(currentWordUri);
+                startActivity(intent);
+            }
+        });
+
+        getLoaderManager().initLoader(WORD_LOADER,null, this);
 
     }
 

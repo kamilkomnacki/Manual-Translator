@@ -19,25 +19,64 @@
 package com.komnacki.manualtranslator;
 
 
+import android.app.LoaderManager;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
-public class WordActivity extends AppCompatActivity{
+
+public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    public static final String LOG_TAG = WordActivity.class.getSimpleName();
+
+    private Uri currentWordUri;
+
+    private static final int WORD_LOADER = 1;
+
+    /** EditText fields to enter word name and translation*/
+    private EditText mNameEditText;
+    private EditText mTranslationEditText;
+    private ImageButton imgBtn_picture;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_word);
 
-        ImageButton imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
+        Intent intent = getIntent();
+        currentWordUri = intent.getData();
+
+
+        /** Choose the title of activity. */
+        if (currentWordUri == null) {
+            setTitle("Add new word");
+        } else {
+            setTitle("Edit word");
+            getLoaderManager().initLoader(WORD_LOADER, null, this);
+        }
+
+
+
+        mNameEditText = (EditText) findViewById(R.id.et_word_name);
+        mTranslationEditText = (EditText) findViewById(R.id.et_word_translation);
+        imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
+
+
         imgBtn_picture.setOnClickListener(clickListener);
+
     }
-
-
 
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
@@ -55,4 +94,64 @@ public class WordActivity extends AppCompatActivity{
     }
 
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+
+    }
+
+    /** Create a projection and a new loader and send it to run on background thread.
+     * After it finish in background thread, onLoadFinished method start working.
+     * @param i
+     * @param args
+     * @return CursorLoader for onLoadFinished.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle args) {
+
+        //Specify what column we're interested in.
+        String[] projection = {
+                WordDbEntry._ID,
+                WordDbEntry.COLUMN_WORD_NAME,
+                WordDbEntry.COLUMN_WORD_TRANSLATION};
+
+        return new CursorLoader(
+                this,
+                currentWordUri,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+
+
+    /**
+     * Start working after onCreateLoader finish run on background thread.
+     * Assign data to xml-fields.
+     * @param loader
+     * @param data
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data.moveToFirst()){
+
+            //Find the columns of word attributes that we're intrested in.
+            int idColumnIndex = data.getColumnIndex(WordDbEntry._ID);
+            int nameColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
+            int translationColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
+
+            //Extract out the value from the Cursor for rhe given column index.
+            String id = data.getString(idColumnIndex);
+            String name = id + " " + data.getString(nameColumnIndex);
+            String translation = data.getString(translationColumnIndex);
+
+            //Update the views on the screen with the values from database.
+            mNameEditText.setText(name);
+            mTranslationEditText.setText(translation);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {}
 }

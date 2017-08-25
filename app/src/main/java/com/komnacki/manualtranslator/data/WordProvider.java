@@ -76,7 +76,7 @@ public class WordProvider extends ContentProvider{
          *
          * The "#" (wildcard) is used and it can be substituted for integer.
          */
-        sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH + "#", WORD_ID);
+        sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH + "/#", WORD_ID);
     }
 
     /**
@@ -87,7 +87,7 @@ public class WordProvider extends ContentProvider{
     @Override
     public boolean onCreate() {
         mDbHelper = new WordDbHelper(getContext());
-        return true;
+        return false;
     }
 
 

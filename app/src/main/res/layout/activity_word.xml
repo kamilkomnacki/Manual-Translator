@@ -20,8 +20,7 @@
 -->
 
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -34,6 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,29 +41,36 @@
             android:baselineAligned="false"
             android:orientation="horizontal"
             android:weightSum="2">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="vertical">
+
                 <EditText
+                    android:id="@+id/et_word_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/word_editText_hint_word"
                     android:lines="3"
-                    android:maxLines="4"/>
+                    android:maxLines="4" />
+
                 <EditText
+                    android:id="@+id/et_word_translation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/word_editText_hint_translation"
                     android:lines="3"
-                    android:maxLines="4"/>
+                    android:maxLines="4" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
+
                 <ImageButton
                     android:id="@+id/word_imgBtn_picture"
                     android:layout_width="match_parent"
@@ -78,33 +85,37 @@
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
-        </Spinner>
+            android:layout_marginBottom="8dp"></Spinner>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:weightSum="5">
+
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/word_btn_recordAudio"/>
+                android:text="@string/word_btn_recordAudio" />
+
             <ImageButton
                 style="@style/ImageButtonSmall"
                 android:layout_weight="1"
                 android:contentDescription="@string/word_imgBtn_playAudio"
                 android:src="@drawable/ic_word_play_btn" />
+
             <ImageButton
                 style="@style/ImageButtonSmall"
                 android:layout_weight="1"
                 android:contentDescription="@string/word_imgBtn_pauseAudio"
                 android:src="@drawable/ic_word_pause_btn" />
+
             <ImageButton
                 style="@style/ImageButtonSmall"
                 android:layout_weight="1"
                 android:contentDescription="@string/word_imgBtn_stopAudio"
                 android:src="@drawable/ic_word_stop_btn" />
+
             <ImageButton
                 style="@style/ImageButtonSmall"
                 android:layout_weight="1"
@@ -116,27 +127,29 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="8dp"
-            android:background="@color/colorPrimaryDark"/>
+            android:background="@color/colorPrimaryDark" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="2">
+
             <Button
                 android:id="@+id/btn_word_image_makeImage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:minWidth="160dp"
-                android:text="@string/word_btn_takePicture"/>
+                android:text="@string/word_btn_takePicture" />
+
             <Button
                 android:id="@+id/btn_word_image_delete"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/ic_word_delete_btn"
-                android:text="@string/word_btn_removePicture"/>
+                android:text="@string/word_btn_removePicture" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
