@@ -63,6 +63,7 @@ public class WordDbHelper extends SQLiteOpenHelper {
     }
 
 
+
     /**
      * This method is called when the database is created for the first time.
      * @param sqLiteDatabase - instance of database use to execute sql statement create.

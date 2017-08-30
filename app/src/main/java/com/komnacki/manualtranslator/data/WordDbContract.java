@@ -100,7 +100,6 @@ public final class WordDbContract {
          */
         public static final String _ID = BaseColumns._ID;
 
-
         /**
          * The name of word.
          *
@@ -131,8 +130,6 @@ public final class WordDbContract {
          * Type: TEXT
          */
         public static final String COLUMN_WORD_LANGUAGE = "language";
-
-
 
     }
 

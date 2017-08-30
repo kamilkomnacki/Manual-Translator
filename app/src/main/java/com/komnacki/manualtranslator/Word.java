@@ -33,9 +33,8 @@ public class Word {
         return word;
     }
 
-    public String getTranslation() {
-        return translation;
-    }
+
+    public String getTranslation() {return translation;}
 
 
 }

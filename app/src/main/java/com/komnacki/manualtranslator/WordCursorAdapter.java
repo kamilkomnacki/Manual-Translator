@@ -36,11 +36,29 @@ public class WordCursorAdapter extends CursorAdapter {
         super(context, c, 0);
     }
 
+
+
+    /**
+     * Makes a new view to hold the data pointed to by cursor.
+     * @param context
+     * @param cursor
+     * @param parent
+     * @return - newly created view.
+     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return LayoutInflater.from(context).inflate(R.layout.words_catalog_list_item, parent, false);
     }
 
+
+
+
+    /**
+     * Bind an existing view to the data pointed to the cursor.
+     * @param view - existing view, returned by newView() method.
+     * @param context
+     * @param cursor - cursor with the data. Cursor is already moved to the correct position.
+     */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView nameTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_word);
@@ -52,8 +70,6 @@ public class WordCursorAdapter extends CursorAdapter {
 
         String wordName = cursor.getString(nameColumnIndex) + cursor.getString(idColumnIndex);
         String wordTranslation = cursor.getString(translationColumnIndex);
-
-
 
         nameTextView.setText(wordName);
         translationTextView.setText(wordTranslation);

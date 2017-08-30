@@ -58,7 +58,7 @@ public class WordProvider extends ContentProvider{
 
     static{
         /**
-         * When method addUri() is called then go here, for all of th content URI patterns that
+         * When method addUri() is called then go here, for all of the content URI patterns that
          * the provider should recognize. All paths added to the UriMatcher have corresponding code
          * to return when a match is found.
          */
