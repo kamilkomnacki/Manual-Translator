@@ -68,7 +68,7 @@ public class WordProvider extends ContentProvider{
          * will map to the integer code {@link #WORDS}. This URI is used to provide
          * access to MULTIPLE rows of the words table.
          */
-        sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH, WORDS);
+       sUriMatcher.addURI(WordDbContract.CONTENT_AUTHORITY, WordDbContract.PATH, WORDS);
 
         /**
          * The content URI of the form "content://com.komnacki.manualtranslator/words/# will map
@@ -214,8 +214,22 @@ public class WordProvider extends ContentProvider{
      * @return
      */
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+
+        switch (match){
+            case WORDS:
+                getContext().getContentResolver().notifyChange(uri, null);
+                return db.delete(WordDbContract.WordDbEntry.TABLE_NAME, selection, selectionArgs);
+            case WORD_ID:
+                selection = WordDbContract.WordDbEntry._ID + "=?";
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                getContext().getContentResolver().notifyChange(uri, null);
+                return db.delete(WordDbContract.WordDbEntry.TABLE_NAME, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Deletetion is not supported for: " + uri);
+        }
     }
 
 
@@ -228,7 +242,36 @@ public class WordProvider extends ContentProvider{
      * @return
      */
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final int match = sUriMatcher.match(uri);
+        switch(match){
+            case WORDS:
+                getContext().getContentResolver().notifyChange(uri, null);
+                return updateWord(uri, contentValues, selection, selectionArgs);
+            case WORD_ID:
+                getContext().getContentResolver().notifyChange(uri, null);
+                selection = WordDbContract.WordDbEntry._ID + "=?";
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                return updateWord(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for: "+ uri);
+        }
+    }
+
+    private int updateWord(Uri uri, ContentValues values, String selection, String[] selectionArgs){
+        if(values.size() == 0){
+            return 0;
+        }
+
+        if(values.containsKey(WordDbContract.WordDbEntry.COLUMN_WORD_NAME)){
+            String name = values.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_NAME);
+            if((name == null) || (name.length() == 0)){
+                throw new IllegalArgumentException("Upddate name is invalid.");
+            }
+        }
+
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        return db.update(WordDbContract.WordDbEntry.TABLE_NAME, values, selection, selectionArgs);
     }
 }
