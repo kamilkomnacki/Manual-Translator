@@ -43,8 +43,6 @@ public class WordProviderTest extends ProviderTestCase2 {
 
 
 
-
-
     @Before
     public void doBeforeEachTestCase(){
         MockitoAnnotations.initMocks(this);
@@ -138,6 +136,10 @@ public class WordProviderTest extends ProviderTestCase2 {
         assertEquals(WORD_TRANSLATION, realTranslationName);
     }
 
+
+    @Test
+    public void delete_test(){
+    }
 
 //    @Test
 //    public void getType_test() {

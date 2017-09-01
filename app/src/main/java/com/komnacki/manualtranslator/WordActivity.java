@@ -27,7 +27,10 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -62,6 +65,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         /** Choose the title of activity. */
         if (currentWordUri == null) {
             setTitle("Add new word");
+            invalidateOptionsMenu();
         } else {
             setTitle("Edit word");
             getLoaderManager().initLoader(WORD_LOADER, null, this);
@@ -94,6 +98,37 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
+
+
+
+
+    //-------------------OPTION MENU--------------------------------
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_single_word_activity, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_save_word:
+                return true;
+            case R.id.action_delete_all_data:
+                return true;
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(WordActivity.this);
+                return true;
+        }
+
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    //-------------------LOADER--------------------------------------
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);

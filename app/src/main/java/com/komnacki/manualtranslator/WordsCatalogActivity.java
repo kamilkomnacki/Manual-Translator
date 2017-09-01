@@ -115,6 +115,11 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 //displayDatabaseInfo();
                 return true;
             case R.id.action_delete_all_data:
+                /**
+                 * 1.wyswietl okno - czy napewno chcesz usunac dane?
+                 * 2.usun wszystkie dane
+                 * 3.pokaz toast
+                 */
                 return true;
         }
 
