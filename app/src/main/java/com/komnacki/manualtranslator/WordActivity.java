@@ -20,15 +20,19 @@ package com.komnacki.manualtranslator;
 
 
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,17 +119,80 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save_word:
+                saveWord();
                 return true;
             case R.id.action_delete_all_data:
                 return true;
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(WordActivity.this);
+                //Dodać flage zmiany inputu. Jesli input sie nie zmienil nie warto pytac o zmiany.
+                DialogInterface.OnClickListener discardButtonClickListener =
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                NavUtils.navigateUpFromSameTask(WordActivity.this);
+                            }
+                        };
+                showUnsavedChangesDialog(discardButtonClickListener);
                 return true;
         }
 
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showUnsavedChangesDialog(
+            DialogInterface.OnClickListener discardButtonClickListener) {
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Discard your changes and quit editing?");
+        builder.setPositiveButton("Discard", discardButtonClickListener);
+        builder.setNegativeButton("Keep editing", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(dialogInterface != null){
+                    dialogInterface.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
+    private void saveWord() {
+        String nameOfWord = mNameEditText.getText().toString().trim();
+        String translationOfWord = mTranslationEditText.getText().toString().trim();
+
+        if (TextUtils.isEmpty(nameOfWord)) {
+            Toast.makeText(this, "Name of word cannot be empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        ContentValues values = new ContentValues();
+        values.put(WordDbEntry.COLUMN_WORD_NAME, nameOfWord);
+        values.put(WordDbEntry.COLUMN_WORD_TRANSLATION, translationOfWord);
+
+        if(currentWordUri == null){
+            Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, values);
+            if(newUri == null){
+                Toast.makeText(this, "Error with saving word! Please, try again.", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(this, "Insert successful!", Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            int rowAffected = getContentResolver().update(currentWordUri, values, null, null);
+            if(rowAffected == 0){
+                Toast.makeText(this, "Error with updating word! Please, try again.", Toast.LENGTH_LONG). show();
+            }else{
+                Toast.makeText(this, "Update successful!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
     }
 
     //-------------------LOADER--------------------------------------
@@ -178,7 +245,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
             //Extract out the value from the Cursor for rhe given column index.
             String id = data.getString(idColumnIndex);
-            String name = id + " " + data.getString(nameColumnIndex);
+            String name = data.getString(nameColumnIndex);
             String translation = data.getString(translationColumnIndex);
 
             //Update the views on the screen with the values from database.
