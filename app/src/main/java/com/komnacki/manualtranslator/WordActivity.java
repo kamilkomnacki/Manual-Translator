@@ -35,6 +35,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -46,16 +47,47 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String LOG_TAG = WordActivity.class.getSimpleName();
-
+    private static final int WORD_LOADER = 1;
     private Uri currentWordUri;
 
-    private static final int WORD_LOADER = 1;
 
     /** EditText fields to enter word name and translation*/
     private EditText mNameEditText;
     private EditText mTranslationEditText;
     private ImageButton imgBtn_picture;
 
+
+    /**
+     * Boolean flag that keeps track of whether the word has been edited (true) or not (false).*/
+    private boolean flag_dataHasChanged = false;
+
+
+    /**
+     * OnTouchListener that listens for any user touches on a View, implying that they are modifying
+     * the view, and we change the flag_dataHasChanged boolean to true.
+     */
+    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            flag_dataHasChanged = true;
+            return false;
+        }
+    };
+
+
+    /**
+     * OnClickListener that listens for any user click on a View.
+     */
+    private View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.word_imgBtn_picture:
+                    showImageOnFullScreen();
+            }
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,21 +113,16 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         mTranslationEditText = (EditText) findViewById(R.id.et_word_translation);
         imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
 
+        mNameEditText.setOnTouchListener(mTouchListener);
+        mTranslationEditText.setOnTouchListener(mTouchListener);
+
 
         imgBtn_picture.setOnClickListener(clickListener);
 
     }
 
-    private View.OnClickListener clickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.word_imgBtn_picture:
-                    showImageOnFullScreen();
-            }
 
-        }
-    };
+
 
     private void showImageOnFullScreen() {
         Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
@@ -105,8 +132,9 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
 
-
-    //-------------------OPTION MENU--------------------------------
+    //---------------------------------------------------------------
+    //-------------------OPTION MENU---------------------------------
+    //---------------------------------------------------------------
 
 
     @Override
@@ -124,21 +152,26 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.action_delete_all_data:
                 return true;
             case android.R.id.home:
-                //Dodać flage zmiany inputu. Jesli input sie nie zmienil nie warto pytac o zmiany.
-                DialogInterface.OnClickListener discardButtonClickListener =
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                NavUtils.navigateUpFromSameTask(WordActivity.this);
-                            }
-                        };
-                showUnsavedChangesDialog(discardButtonClickListener);
+                backwardToParentActivity();
                 return true;
         }
 
-
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void backwardToParentActivity() {
+        if(flag_dataHasChanged){
+            DialogInterface.OnClickListener discardButtonClickListener =
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            NavUtils.navigateUpFromSameTask(WordActivity.this);
+                        }
+                    };
+            showUnsavedChangesDialog(discardButtonClickListener);
+        }else{
+            NavUtils.navigateUpFromSameTask(WordActivity.this);
+        }
     }
 
     private void showUnsavedChangesDialog(
@@ -163,6 +196,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void saveWord() {
+        flag_dataHasChanged = false;
         String nameOfWord = mNameEditText.getText().toString().trim();
         String translationOfWord = mTranslationEditText.getText().toString().trim();
 
@@ -195,12 +229,19 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+
+
+
+
+    //---------------------------------------------------------------
     //-------------------LOADER--------------------------------------
+    //---------------------------------------------------------------
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);
 
     }
+
 
     /** Create a projection and a new loader and send it to run on background thread.
      * After it finish in background thread, onLoadFinished method start working.
@@ -225,7 +266,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 null,
                 null);
     }
-
 
 
     /**
@@ -253,6 +293,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             mTranslationEditText.setText(translation);
         }
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {}
