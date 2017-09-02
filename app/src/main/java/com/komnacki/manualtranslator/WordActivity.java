@@ -122,8 +122,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-
-
     private void showImageOnFullScreen() {
         Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
     }
@@ -135,8 +133,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     //---------------------------------------------------------------
     //-------------------OPTION MENU---------------------------------
     //---------------------------------------------------------------
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_single_word_activity, menu);
@@ -148,8 +144,10 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         switch (item.getItemId()){
             case R.id.action_save_word:
                 saveWord();
+                finish();
                 return true;
-            case R.id.action_delete_all_data:
+            case R.id.action_delete_word:
+                showDeleteConfirmationDialog();
                 return true;
             case android.R.id.home:
                 backwardToParentActivity();
@@ -159,6 +157,14 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onOptionsItemSelected(item);
     }
 
+
+
+
+
+
+    //---------------------------------------------------------------
+    //-------------------SAVE PET------------------------------------
+    //---------------------------------------------------------------
     private void backwardToParentActivity() {
         if(flag_dataHasChanged){
             DialogInterface.OnClickListener discardButtonClickListener =
@@ -228,6 +234,54 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     }
+
+
+
+
+
+
+
+    //---------------------------------------------------------------
+    //-------------------DELETE PET------------------------------------
+    //---------------------------------------------------------------
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Delete this word?");
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deleteWord();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if(dialog != null){
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deleteWord() {
+
+
+        if (currentWordUri!=null){
+            int rowsDeleted = getContentResolver().delete(currentWordUri, null, null);
+            if(rowsDeleted == 0){
+                Toast.makeText(this, "Error with deleting word.", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(this, "Delete successful!", Toast.LENGTH_SHORT).show();
+            }
+        }
+        finish();
+    }
+
+
+
 
 
 
