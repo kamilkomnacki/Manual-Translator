@@ -34,6 +34,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -50,7 +52,10 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     private static final int WORD_LOADER = 0;
 
     private WordDbHelper dbHelper = new WordDbHelper(this);
+    private ListView listViewOfWords;
     WordCursorAdapter cursorAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +78,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
 
-        ListView listViewOfWords = (ListView) findViewById(R.id.listOfWords);
+
+        listViewOfWords = (ListView) findViewById(R.id.listOfWords);
 
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
@@ -114,16 +120,55 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 insertWord();
                 //displayDatabaseInfo();
                 return true;
-            case R.id.action_delete_all_data:
-                /**
-                 * 1.wyswietl okno - czy napewno chcesz usunac dane?
-                 * 2.usun wszystkie dane
-                 * 3.pokaz toast
-                 */
+            case R.id.action_delete_words_from_catalogActivity:
+                deleteListItemsMode(item);
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void deleteListItemsMode(final MenuItem deleteButton) {
+        final LinearLayout bottomDeletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
+
+        bottomDeletePanel.setVisibility(View.VISIBLE);
+        deleteButton.setVisible(false);
+        enable_checkboxForEachItem(true);
+
+        Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_selectAll);
+        Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_cancelDelete);
+
+
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()) {
+                    case R.id.btn_wordCatalog_bottomPanel_selectAll:
+                        //sellectAllItemsInListView();
+                        break;
+                    case R.id.btn_wordCatalog_bottomPanel_cancelDelete:
+                        enable_checkboxForEachItem(false);
+                        bottomDeletePanel.setVisibility(View.GONE);
+                        deleteButton.setVisible(true);
+                        break;
+                }
+            }
+        };
+
+        btn_selectAll.setOnClickListener(clickListener);
+        btn_cancelDelete.setOnClickListener(clickListener);
+
+    }
+
+    private void sellectAllItemsInListView() {
+//        cursorAdapter.isAllItemsCheckBoxVisible = true;
+//        cursorAdapter.notifyDataSetChanged();
+    }
+
+
+    private void enable_checkboxForEachItem(boolean isEnable) {
+        cursorAdapter.isAllItemsCheckBoxVisible = isEnable;
+        cursorAdapter.notifyDataSetChanged();
     }
 
     private void insertWord() {

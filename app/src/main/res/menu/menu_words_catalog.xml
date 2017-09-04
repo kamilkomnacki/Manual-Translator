@@ -34,8 +34,8 @@
                             android:title="Insert dummy data"
                             app:showAsAction="collapseActionView" />
                         <item
-                            android:id="@+id/action_delete_all_data"
-                            android:title="Delete all"
+                            android:id="@+id/action_delete_words_from_catalogActivity"
+                            android:title="Delete"
                             app:showAsAction="collapseActionView" />
                 </menu>
         </item>

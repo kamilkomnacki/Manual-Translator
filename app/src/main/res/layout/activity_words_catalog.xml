@@ -24,6 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:weightSum="10"
     tools:context="com.komnacki.manualtranslator.WordsCatalogActivity">
 
 
@@ -31,10 +32,33 @@
         <ListView
             android:id="@+id/listOfWords"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_weight="1">
         </ListView>
 
 
+
+        <LinearLayout
+            android:id="@+id/linearL_wordCatalog_bottomDeletePanel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="9"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:weightSum="2">
+                <Button
+                    android:id="@+id/btn_wordCatalog_bottomPanel_selectAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Select all"/>
+                <Button
+                    android:id="@+id/btn_wordCatalog_bottomPanel_cancelDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Cancel delete"/>
+        </LinearLayout>
 
 
 </LinearLayout>

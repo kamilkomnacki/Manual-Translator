@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -31,11 +32,12 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 
 public class WordCursorAdapter extends CursorAdapter {
+    public boolean isAllItemsCheckBoxVisible;
+
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
     }
-
 
 
     /**
@@ -47,7 +49,10 @@ public class WordCursorAdapter extends CursorAdapter {
      */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.words_catalog_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.words_catalog_list_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
     }
 
 
@@ -61,6 +66,17 @@ public class WordCursorAdapter extends CursorAdapter {
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        if (isAllItemsCheckBoxVisible)
+            viewHolder.checkBox.setVisibility(View.VISIBLE);
+        else
+            viewHolder.checkBox.setVisibility(View.GONE);
+
+
+
+
+
+
         TextView nameTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_word);
         TextView translationTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_translate);
 
@@ -75,4 +91,18 @@ public class WordCursorAdapter extends CursorAdapter {
         translationTextView.setText(wordTranslation);
 
     }
+
+
+
+
+    public static class ViewHolder{
+        CheckBox checkBox;
+
+        public ViewHolder(View view){
+            checkBox = (CheckBox) view.findViewById(R.id.wordsCatalog_listItem_checkBox);
+        }
+    }
+
+
+
 }
