@@ -130,13 +130,17 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
     private void deleteListItemsMode(final MenuItem deleteButton) {
         final LinearLayout bottomDeletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
+        final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_selectAll);
+        Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_cancelDelete);
+
 
         bottomDeletePanel.setVisibility(View.VISIBLE);
         deleteButton.setVisible(false);
         enable_checkboxForEachItem(true);
 
-        Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_selectAll);
-        Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_cancelDelete);
+
+
+
 
 
         View.OnClickListener clickListener = new View.OnClickListener() {
@@ -144,7 +148,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.btn_wordCatalog_bottomPanel_selectAll:
-                        //sellectAllItemsInListView();
+                        selectAllItemsOnListView();
+                        setTextFor_SelectAllButton();
                         break;
                     case R.id.btn_wordCatalog_bottomPanel_cancelDelete:
                         enable_checkboxForEachItem(false);
@@ -152,24 +157,38 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                         deleteButton.setVisible(true);
                         break;
                 }
+
             }
+            private void selectAllItemsOnListView() {
+                cursorAdapter.isAllItemsCheckBoxSelect = !cursorAdapter.isAllItemsCheckBoxSelect;
+                cursorAdapter.notifyDataSetChanged();
+            }
+            private void setTextFor_SelectAllButton() {
+                if(cursorAdapter.isAllItemsCheckBoxSelect)
+                    btn_selectAll.setText("Unselect all");
+                else
+                    btn_selectAll.setText("Select all");
+            }
+
         };
+
+
 
         btn_selectAll.setOnClickListener(clickListener);
         btn_cancelDelete.setOnClickListener(clickListener);
 
     }
 
-    private void sellectAllItemsInListView() {
-//        cursorAdapter.isAllItemsCheckBoxVisible = true;
-//        cursorAdapter.notifyDataSetChanged();
-    }
-
-
     private void enable_checkboxForEachItem(boolean isEnable) {
+        cursorAdapter.isAllItemsCheckBoxSelect = false;
         cursorAdapter.isAllItemsCheckBoxVisible = isEnable;
         cursorAdapter.notifyDataSetChanged();
     }
+
+
+
+
+
 
     private void insertWord() {
 

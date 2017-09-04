@@ -33,6 +33,7 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordCursorAdapter extends CursorAdapter {
     public boolean isAllItemsCheckBoxVisible;
+    public boolean isAllItemsCheckBoxSelect;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
@@ -67,14 +68,8 @@ public class WordCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        if (isAllItemsCheckBoxVisible)
-            viewHolder.checkBox.setVisibility(View.VISIBLE);
-        else
-            viewHolder.checkBox.setVisibility(View.GONE);
-
-
-
-
+        setVisibilityOfCheckBoxes(viewHolder);
+        setCheckBoxOfAllItemsSelectedOrUnselected(viewHolder);
 
 
         TextView nameTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_word);
@@ -92,14 +87,27 @@ public class WordCursorAdapter extends CursorAdapter {
 
     }
 
+    private void setCheckBoxOfAllItemsSelectedOrUnselected(ViewHolder viewHolder) {
+        if(isAllItemsCheckBoxSelect)
+            viewHolder.checkBox.setChecked(true);
+        else
+            viewHolder.checkBox.setChecked(false);
+    }
 
+
+    private void setVisibilityOfCheckBoxes(ViewHolder viewHolder) {
+        if (isAllItemsCheckBoxVisible)
+            viewHolder.checkBox.setVisibility(View.VISIBLE);
+        else
+            viewHolder.checkBox.setVisibility(View.GONE);
+    }
 
 
     public static class ViewHolder{
         CheckBox checkBox;
 
         public ViewHolder(View view){
-            checkBox = (CheckBox) view.findViewById(R.id.wordsCatalog_listItem_checkBox);
+            checkBox = (CheckBox) view.findViewById(R.id.chbox_wordsCatalog_listItem);
         }
     }
 
