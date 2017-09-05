@@ -36,10 +36,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".WordsCatalogActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName=".LanguagesActivity"/>
         <activity android:name=".WordActivity"
-            android:parentActivityName=".WordsCatalogActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:parentActivityName=".WordsCatalogActivity"
             android:windowSoftInputMode="stateHidden"/>
         <provider
             android:name=".data.WordProvider"

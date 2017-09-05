@@ -63,6 +63,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_words_catalog);
 
 
+
         ArrayList<Word> exampleListOfWords = new ArrayList<>();
         exampleListOfWords.add(new Word("fragile", "kruchy"));
         exampleListOfWords.add(new Word("emphatic", "dobitny"));
@@ -77,6 +78,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         exampleListOfWords.add(new Word("unspoilt", "nieskażony"));
         exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
         exampleListOfWords.add(new Word("reluctant", "niechętny"));
+
 
 
         listViewOfWords = (ListView) findViewById(R.id.listOfWords);
@@ -97,15 +99,10 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
         getLoaderManager().initLoader(WORD_LOADER,null, this);
 
+
+
     }
 
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //displayDatabaseInfo();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -142,32 +139,40 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
 
-
+        cursorAdapter.isPressed_SelectOrUnselectAll_Button = false;
+        cursorAdapter.isSelectMode = true;
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.btn_wordCatalog_bottomPanel_selectAll:
                         selectAllItemsOnListView();
-                        setTextFor_SelectAllButton();
+                        setTextFor_SelectAll_Button();
                         break;
                     case R.id.btn_wordCatalog_bottomPanel_cancelDelete:
                         enable_checkboxForEachItem(false);
                         bottomDeletePanel.setVisibility(View.GONE);
                         deleteButton.setVisible(true);
+
+                        setTextFor_SelectAll_Button();
                         break;
                 }
 
             }
+
             private void selectAllItemsOnListView() {
-                cursorAdapter.isAllItemsCheckBoxSelect = !cursorAdapter.isAllItemsCheckBoxSelect;
+
+                cursorAdapter.isPressed_SelectOrUnselectAll_Button = true;
+                cursorAdapter.isSelectMode = !cursorAdapter.isSelectMode;
                 cursorAdapter.notifyDataSetChanged();
+                cursorAdapter.isPressed_SelectOrUnselectAll_Button = false;
             }
-            private void setTextFor_SelectAllButton() {
-                if(cursorAdapter.isAllItemsCheckBoxSelect)
-                    btn_selectAll.setText("Unselect all");
-                else
+
+            private void setTextFor_SelectAll_Button() {
+                if(cursorAdapter.isSelectMode)
                     btn_selectAll.setText("Select all");
+                else
+                    btn_selectAll.setText("Unselect all");
             }
 
         };
@@ -180,9 +185,10 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     }
 
     private void enable_checkboxForEachItem(boolean isEnable) {
-        cursorAdapter.isAllItemsCheckBoxSelect = false;
+        cursorAdapter.cancelAllSelected = !isEnable;
         cursorAdapter.isAllItemsCheckBoxVisible = isEnable;
         cursorAdapter.notifyDataSetChanged();
+
     }
 
 

@@ -25,20 +25,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 
-public class WordCursorAdapter extends CursorAdapter {
+public class WordCursorAdapter extends CursorAdapter implements Serializable{
+
+    /** To store all selected items positions*/
+    List<Integer> selectedItemsPositions;
+
     public boolean isAllItemsCheckBoxVisible;
-    public boolean isAllItemsCheckBoxSelect;
+    public boolean isSelectMode;
+    public boolean isPressed_SelectOrUnselectAll_Button;
+    public boolean cancelAllSelected;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
+        selectedItemsPositions = new ArrayList<>();
     }
+
 
 
     /**
@@ -69,7 +82,26 @@ public class WordCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         setVisibilityOfCheckBoxes(viewHolder);
-        setCheckBoxOfAllItemsSelectedOrUnselected(viewHolder);
+
+
+        viewHolder.checkBox.setTag(cursor.getPosition());
+//
+//        //setVisibilityOfAllCheckboxes()
+//        if (isAllItemsCheckBoxVisible)
+//            checkBox.setVisibility(View.VISIBLE);
+//        else
+//            checkBox.setVisibility(View.GONE);
+
+        //setCheckboxSelectedOrUnselected()
+//        if(isSelectMode)
+//            checkBox.setChecked(true);
+//        else
+//            checkBox.setChecked(false);
+        selectOrUnselectAllItems_ifSelectOrUnselectPressed(cursor);
+        clearListOfCheckedItems_ifCancelButtonPressed();
+
+        checkAllPositions_fromSelectedItemPositions(cursor, viewHolder);
+
 
 
         TextView nameTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_word);
@@ -87,12 +119,40 @@ public class WordCursorAdapter extends CursorAdapter {
 
     }
 
-    private void setCheckBoxOfAllItemsSelectedOrUnselected(ViewHolder viewHolder) {
-        if(isAllItemsCheckBoxSelect)
+    private void selectOrUnselectAllItems_ifSelectOrUnselectPressed(Cursor cursor) {
+        if(isPressed_SelectOrUnselectAll_Button){
+            if(isSelectMode){
+                selectedItemsPositions.clear();
+            }else{
+                if(!selectedItemsPositions.contains(cursor.getPosition()))
+                    selectedItemsPositions.add(cursor.getPosition());
+            }
+        }
+    }
+
+
+    /**
+     * Check all ArrayList in order to find if checkBox of this item should be checked
+     * and check it (if yes).
+     */
+    private void checkAllPositions_fromSelectedItemPositions(Cursor cursor, ViewHolder viewHolder) {
+        if(selectedItemsPositions.contains(cursor.getPosition()))
             viewHolder.checkBox.setChecked(true);
         else
             viewHolder.checkBox.setChecked(false);
     }
+
+
+    /**
+     * In the case when CANCEL DELETE button has been pressed.
+     * Then clear all ArrayList with checked checkBox positions.
+     */
+    private void clearListOfCheckedItems_ifCancelButtonPressed() {
+        if (cancelAllSelected){
+            selectedItemsPositions.clear();
+        }
+    }
+
 
 
     private void setVisibilityOfCheckBoxes(ViewHolder viewHolder) {
@@ -103,12 +163,31 @@ public class WordCursorAdapter extends CursorAdapter {
     }
 
 
-    public static class ViewHolder{
+
+    public class ViewHolder{
         CheckBox checkBox;
+
 
         public ViewHolder(View view){
             checkBox = (CheckBox) view.findViewById(R.id.chbox_wordsCatalog_listItem);
+            setOnCheckedChangeListener();
         }
+
+        private void setOnCheckedChangeListener() {
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    int position = (int) compoundButton.getTag();
+                    if(b){
+                        if(!selectedItemsPositions.contains(position))
+                            selectedItemsPositions.add(position);
+                    }else{
+                        selectedItemsPositions.remove((Object) position);
+                    }
+                }
+            });
+        }
+
     }
 
 

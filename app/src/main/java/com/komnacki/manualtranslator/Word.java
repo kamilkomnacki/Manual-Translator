@@ -23,6 +23,7 @@ package com.komnacki.manualtranslator;
 public class Word {
     private String word;
     private String translation;
+    private boolean isChecked;
 
     public Word(String word, String translation){
         this.word = word;
@@ -36,5 +37,9 @@ public class Word {
 
     public String getTranslation() {return translation;}
 
+
+    public boolean isChecked() {
+        return isChecked;
+    }
 
 }

@@ -18,47 +18,45 @@
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
         -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="10"
     tools:context="com.komnacki.manualtranslator.WordsCatalogActivity">
 
-
-
-        <ListView
-            android:id="@+id/listOfWords"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-        </ListView>
 
 
 
         <LinearLayout
             android:id="@+id/linearL_wordCatalog_bottomDeletePanel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="9"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
             android:orientation="horizontal"
             android:visibility="gone"
             android:weightSum="2">
                 <Button
                     android:id="@+id/btn_wordCatalog_bottomPanel_selectAll"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Select all"/>
                 <Button
                     android:id="@+id/btn_wordCatalog_bottomPanel_cancelDelete"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Cancel delete"/>
         </LinearLayout>
 
+    <ListView
+        android:id="@+id/listOfWords"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linearL_wordCatalog_bottomDeletePanel">
+    </ListView>
 
-</LinearLayout>
+
+</RelativeLayout>
