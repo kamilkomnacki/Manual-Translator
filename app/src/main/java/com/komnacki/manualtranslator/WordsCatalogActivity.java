@@ -30,6 +30,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +55,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     private static final int WORD_LOADER = 0;
 
     private WordDbHelper dbHelper = new WordDbHelper(this);
-    private ListView listViewOfWords;
+    private RecyclerView listViewOfWords;
     WordCursorAdapter cursorAdapter;
 
 
@@ -81,7 +84,13 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
 
-        listViewOfWords = (ListView) findViewById(R.id.listOfWords);
+        listViewOfWords = (RecyclerView) findViewById(R.id.listOfWords);
+        listViewOfWords.setHasFixedSize(true);
+
+        listViewOfWords.setLayoutManager(new LinearLayoutManager(this));
+
+        listViewOfWords.setItemAnimator(new DefaultItemAnimator());
+
 
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
@@ -125,57 +134,56 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     }
 
 
-    private void deleteListItemsMode(final MenuItem deleteButton) {
-        final LinearLayout bottomDeletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
-        final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_selectAll);
-        Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_bottomPanel_cancelDelete);
+    private void deleteListItemsMode(final MenuItem btn_deleteOnOptionMenu) {
+        final LinearLayout deletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
+        final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_selectAll);
+        final Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_cancelDelete);
 
 
-        bottomDeletePanel.setVisibility(View.VISIBLE);
-        deleteButton.setVisible(false);
-        enable_checkboxForEachItem(true);
+        btn_deleteOnOptionMenu.setVisible(false);
+        deletePanel.setVisibility(View.VISIBLE);
+        btn_selectAll.setText("Select all");
+        showCheckboxForEveryItem(true);
+        refreshView();
 
 
-
-
-
-        cursorAdapter.isPressed_SelectOrUnselectAll_Button = false;
-        cursorAdapter.isSelectMode = true;
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
-                    case R.id.btn_wordCatalog_bottomPanel_selectAll:
-                        selectAllItemsOnListView();
-                        setTextFor_SelectAll_Button();
+                    case R.id.btn_wordCatalog_deletePanel_selectAll:
+                        set_selectOrUnselect_mode();
+                        refreshView();
                         break;
-                    case R.id.btn_wordCatalog_bottomPanel_cancelDelete:
-                        enable_checkboxForEachItem(false);
-                        bottomDeletePanel.setVisibility(View.GONE);
-                        deleteButton.setVisible(true);
+                    case R.id.btn_wordCatalog_deletePanel_cancelDelete:
 
-                        setTextFor_SelectAll_Button();
+                        unselectAllCheckedItems();
+                        showCheckboxForEveryItem(false);
+                        deletePanel.setVisibility(View.GONE);
+                        btn_deleteOnOptionMenu.setVisible(true);
+                        refreshView();
                         break;
                 }
 
             }
 
-            private void selectAllItemsOnListView() {
+            private void unselectAllCheckedItems() {
+                cursorAdapter.unselectAllSelected = true;
+            }
+
+            private void set_selectOrUnselect_mode() {
+                if(btn_selectAll.getText().equals("Select all")) {
+                    btn_selectAll.setText("Unselect all");
+                    cursorAdapter.isUnselectMode = false;
+                }else {
+                    btn_selectAll.setText("Select all");
+                    cursorAdapter.isUnselectMode = true;
+                }
 
                 cursorAdapter.isPressed_SelectOrUnselectAll_Button = true;
-                cursorAdapter.isSelectMode = !cursorAdapter.isSelectMode;
-                cursorAdapter.notifyDataSetChanged();
-                cursorAdapter.isPressed_SelectOrUnselectAll_Button = false;
             }
-
-            private void setTextFor_SelectAll_Button() {
-                if(cursorAdapter.isSelectMode)
-                    btn_selectAll.setText("Select all");
-                else
-                    btn_selectAll.setText("Unselect all");
-            }
-
         };
+
 
 
 
@@ -184,12 +192,17 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
     }
 
-    private void enable_checkboxForEachItem(boolean isEnable) {
-        cursorAdapter.cancelAllSelected = !isEnable;
-        cursorAdapter.isAllItemsCheckBoxVisible = isEnable;
-        cursorAdapter.notifyDataSetChanged();
 
+    private void showCheckboxForEveryItem(boolean isEnable) {
+        cursorAdapter.isItemsCheckboxVisible = isEnable;
     }
+
+    private void refreshView() {
+        cursorAdapter.notifyDataSetChanged();
+    }
+
+
+
 
 
 

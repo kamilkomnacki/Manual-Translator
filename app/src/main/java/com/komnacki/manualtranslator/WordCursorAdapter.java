@@ -22,6 +22,7 @@ package com.komnacki.manualtranslator;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -31,25 +32,36 @@ import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 
 public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
-    /** To store all selected items positions*/
-    List<Integer> selectedItemsPositions;
 
-    public boolean isAllItemsCheckBoxVisible;
-    public boolean isSelectMode;
+    /** To store all selected items positions*/
+    List<Integer> listOfSelectedItemsPositions;
+
+    /** To store all items ID is Already checked*/
+    Set<Integer> setOfItemsID_isAlreadyChecked;
+
+    public boolean isItemsCheckboxVisible;
+    public boolean isUnselectMode;
     public boolean isPressed_SelectOrUnselectAll_Button;
-    public boolean cancelAllSelected;
+    public boolean isPressed_SingleCheckBox;
+    public boolean unselectAllSelected;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
-        selectedItemsPositions = new ArrayList<>();
+        listOfSelectedItemsPositions = new ArrayList<>();
+        setOfItemsID_isAlreadyChecked = new HashSet<>();
+        isPressed_SelectOrUnselectAll_Button = false;
+        isPressed_SingleCheckBox = false;
+        isUnselectMode = true;
     }
 
 
@@ -65,6 +77,7 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.words_catalog_list_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
+
         view.setTag(viewHolder);
         return view;
     }
@@ -80,30 +93,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-        setVisibilityOfCheckBoxes(viewHolder);
-
-
-        viewHolder.checkBox.setTag(cursor.getPosition());
-//
-//        //setVisibilityOfAllCheckboxes()
-//        if (isAllItemsCheckBoxVisible)
-//            checkBox.setVisibility(View.VISIBLE);
-//        else
-//            checkBox.setVisibility(View.GONE);
-
-        //setCheckboxSelectedOrUnselected()
-//        if(isSelectMode)
-//            checkBox.setChecked(true);
-//        else
-//            checkBox.setChecked(false);
-        selectOrUnselectAllItems_ifSelectOrUnselectPressed(cursor);
-        clearListOfCheckedItems_ifCancelButtonPressed();
-
-        checkAllPositions_fromSelectedItemPositions(cursor, viewHolder);
-
-
-
         TextView nameTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_word);
         TextView translationTextView = (TextView) view.findViewById(R.id.wordsCatalog_listItem_translate);
 
@@ -111,24 +100,69 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
         int translationColumnIndex = cursor.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
         int idColumnIndex = cursor.getColumnIndex(WordDbEntry._ID);
 
-        String wordName = cursor.getString(nameColumnIndex);
+        int itemID = Integer.parseInt(cursor.getString(idColumnIndex));
+        String wordName = itemID + " " + cursor.getString(nameColumnIndex);
         String wordTranslation = cursor.getString(translationColumnIndex);
+
+
 
         nameTextView.setText(wordName);
         translationTextView.setText(wordTranslation);
 
+
+
+
+
+
+
+        //-------------------------------CheckBox Service-------------------------------------------
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        setVisibilityOfCheckbox(viewHolder);
+
+        viewHolder.checkBox.setTag(cursor.getPosition());
+
+        handleWhenSelectOrUnselectButtonPressed(cursor, itemID);
+        handleWhenSingleCheckBoxPressed(cursor, itemID);
+
+        checkIfClearListOfCheckedItems();
+        checkAllPositions_fromSelectedItemPositions(cursor, viewHolder);
+
     }
 
-    private void selectOrUnselectAllItems_ifSelectOrUnselectPressed(Cursor cursor) {
-        if(isPressed_SelectOrUnselectAll_Button){
-            if(isSelectMode){
-                selectedItemsPositions.clear();
-            }else{
-                if(!selectedItemsPositions.contains(cursor.getPosition()))
-                    selectedItemsPositions.add(cursor.getPosition());
+    private void handleWhenSelectOrUnselectButtonPressed(Cursor cursor, int itemID) {
+        if(isPressed_SelectOrUnselectAll_Button) {
+            if (isUnselectMode) {
+                unselectAllSelected = true;
+            } else {
+                setCheckboxItemChecked(cursor, itemID);
             }
         }
     }
+
+    private void handleWhenSingleCheckBoxPressed(Cursor cursor, int itemID) {
+        if(isPressed_SingleCheckBox){
+            if (!isUnselectMode){
+                if(!setOfItemsID_isAlreadyChecked.contains(itemID)){
+                    setCheckboxItemChecked(cursor, itemID);
+                }
+            }
+        }
+    }
+
+    /**
+     * Add item position to list of items going to be checked.
+     * Also add id Of item to set of already checked item.
+     * @param cursor
+     * @param itemID - unique id of item from SQL database
+     */
+    private void setCheckboxItemChecked(Cursor cursor, int itemID) {
+        setOfItemsID_isAlreadyChecked.add(itemID);
+        if (!listOfSelectedItemsPositions.contains(cursor.getPosition())) {
+            listOfSelectedItemsPositions.add(cursor.getPosition());
+        }
+    }
+
+
 
 
     /**
@@ -136,7 +170,7 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
      * and check it (if yes).
      */
     private void checkAllPositions_fromSelectedItemPositions(Cursor cursor, ViewHolder viewHolder) {
-        if(selectedItemsPositions.contains(cursor.getPosition()))
+        if(listOfSelectedItemsPositions.contains(cursor.getPosition()))
             viewHolder.checkBox.setChecked(true);
         else
             viewHolder.checkBox.setChecked(false);
@@ -144,28 +178,37 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
 
     /**
-     * In the case when CANCEL DELETE button has been pressed.
-     * Then clear all ArrayList with checked checkBox positions.
+     * In the case when CANCEL DELETE button has been pressed or is necessary to clear
+     * all checked items.
+     * Then clear entire ArrayList with checked checkBox positions and clear Set of already
+     * checked items and reset flag of isPressed_events.
      */
-    private void clearListOfCheckedItems_ifCancelButtonPressed() {
-        if (cancelAllSelected){
-            selectedItemsPositions.clear();
+    private void checkIfClearListOfCheckedItems() {
+        if (unselectAllSelected){
+            listOfSelectedItemsPositions.clear();
+            setOfItemsID_isAlreadyChecked.clear();
+            isPressed_SelectOrUnselectAll_Button=false;
+            isPressed_SingleCheckBox=false;
+            unselectAllSelected = false;
         }
     }
 
 
 
-    private void setVisibilityOfCheckBoxes(ViewHolder viewHolder) {
-        if (isAllItemsCheckBoxVisible)
+    private void setVisibilityOfCheckbox(ViewHolder viewHolder) {
+        if (isItemsCheckboxVisible)
             viewHolder.checkBox.setVisibility(View.VISIBLE);
         else
             viewHolder.checkBox.setVisibility(View.GONE);
     }
 
 
-
+    /**
+     * Class to hold a view of current row that newView() and bindView() method currently work.
+     */
     public class ViewHolder{
         CheckBox checkBox;
+
 
 
         public ViewHolder(View view){
@@ -179,11 +222,20 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     int position = (int) compoundButton.getTag();
                     if(b){
-                        if(!selectedItemsPositions.contains(position))
-                            selectedItemsPositions.add(position);
+                        if(!listOfSelectedItemsPositions.contains(position))
+                            listOfSelectedItemsPositions.add(position);
                     }else{
-                        selectedItemsPositions.remove((Object) position);
+                        listOfSelectedItemsPositions.remove((Object) position);
                     }
+                }
+            });
+
+            checkBox.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    isPressed_SingleCheckBox = true;
+                    isPressed_SelectOrUnselectAll_Button = false;
+                    return false;
                 }
             });
         }
