@@ -29,10 +29,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,18 +43,26 @@ import android.widget.Toast;
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordsCatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
 
+
+
+
     /** Identifier for the word data loader */
     private static final int WORD_LOADER = 0;
 
+
+
     private WordDbHelper dbHelper = new WordDbHelper(this);
-    private RecyclerView listViewOfWords;
+    private ListView listViewOfWords;
     WordCursorAdapter cursorAdapter;
+
+
 
 
 
@@ -84,16 +90,12 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
 
-        listViewOfWords = (RecyclerView) findViewById(R.id.listOfWords);
-        listViewOfWords.setHasFixedSize(true);
-
-        listViewOfWords.setLayoutManager(new LinearLayoutManager(this));
-
-        listViewOfWords.setItemAnimator(new DefaultItemAnimator());
+        listViewOfWords = (ListView) findViewById(R.id.listOfWords);
 
 
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
+        listViewOfWords.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         listViewOfWords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -138,10 +140,11 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         final LinearLayout deletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
         final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_selectAll);
         final Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_cancelDelete);
-
+        final FloatingActionButton floatingBTN_delete = (FloatingActionButton) findViewById(R.id.floatingButton_catalogActivity_delete);
 
         btn_deleteOnOptionMenu.setVisible(false);
         deletePanel.setVisibility(View.VISIBLE);
+        floatingBTN_delete.setVisibility(View.VISIBLE);
         btn_selectAll.setText("Select all");
         showCheckboxForEveryItem(true);
         refreshView();
@@ -156,15 +159,29 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                         refreshView();
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
-
                         unselectAllCheckedItems();
                         showCheckboxForEveryItem(false);
                         deletePanel.setVisibility(View.GONE);
+                        floatingBTN_delete.setVisibility(View.GONE);
                         btn_deleteOnOptionMenu.setVisible(true);
                         refreshView();
                         break;
+                    case R.id.floatingButton_catalogActivity_delete:
+                        deleteCheckedItems();
+                        break;
                 }
 
+            }
+
+            private void deleteCheckedItems() {
+                List<String> listOfID_toDelete = new ArrayList<>();
+                //SparseBooleanArray checkedItems = listViewOfWords.getCheckedItemPositions();
+                //Toast.makeText(WordsCatalogActivity.this, "checkedItems: " + checkedItems, Toast.LENGTH_SHORT).show();
+                int listItemCount = listViewOfWords.getCount();
+                for(int i=0; i<listItemCount; i++){
+                }
+
+                Toast.makeText(WordsCatalogActivity.this, "" + cursorAdapter.listOfSelectedItemsPositions, Toast.LENGTH_SHORT).show();
             }
 
             private void unselectAllCheckedItems() {
@@ -189,6 +206,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
         btn_selectAll.setOnClickListener(clickListener);
         btn_cancelDelete.setOnClickListener(clickListener);
+        floatingBTN_delete.setOnClickListener(clickListener);
 
     }
 
@@ -274,4 +292,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         cursorAdapter.swapCursor(null);
     }
+
+
 }

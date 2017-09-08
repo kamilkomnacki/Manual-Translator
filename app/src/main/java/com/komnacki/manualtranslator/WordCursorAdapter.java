@@ -53,6 +53,7 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     public boolean isPressed_SelectOrUnselectAll_Button;
     public boolean isPressed_SingleCheckBox;
     public boolean unselectAllSelected;
+    public boolean isDeleteCheckedItems;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
@@ -61,6 +62,7 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
         setOfItemsID_isAlreadyChecked = new HashSet<>();
         isPressed_SelectOrUnselectAll_Button = false;
         isPressed_SingleCheckBox = false;
+        isDeleteCheckedItems = false;
         isUnselectMode = true;
     }
 
@@ -124,9 +126,16 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
         handleWhenSelectOrUnselectButtonPressed(cursor, itemID);
         handleWhenSingleCheckBoxPressed(cursor, itemID);
 
+
         checkIfClearListOfCheckedItems();
         checkAllPositions_fromSelectedItemPositions(cursor, viewHolder);
 
+
+        deleteCheckedItems();
+
+    }
+
+    private void deleteCheckedItems() {
     }
 
     private void handleWhenSelectOrUnselectButtonPressed(Cursor cursor, int itemID) {
