@@ -273,4 +273,6 @@ public class WordProvider extends ContentProvider{
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         return db.update(WordDbContract.WordDbEntry.TABLE_NAME, values, selection, selectionArgs);
     }
+
+
 }

@@ -21,8 +21,8 @@ package com.komnacki.manualtranslator;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -41,6 +41,7 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
+    int i = 0;
 
     /** To store all selected items positions*/
     List<Integer> listOfSelectedItemsPositions;
@@ -48,25 +49,24 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     /** To store all items ID is Already checked*/
     Set<Integer> setOfItemsID_isAlreadyChecked;
 
-    public boolean isItemsCheckboxVisible;
-    public boolean isUnselectMode;
-    public boolean isPressed_SelectOrUnselectAll_Button;
-    public boolean isPressed_SingleCheckBox;
-    public boolean unselectAllSelected;
-    public boolean isDeleteCheckedItems;
+
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
         listOfSelectedItemsPositions = new ArrayList<>();
         setOfItemsID_isAlreadyChecked = new HashSet<>();
-        isPressed_SelectOrUnselectAll_Button = false;
-        isPressed_SingleCheckBox = false;
-        isDeleteCheckedItems = false;
-        isUnselectMode = true;
+
     }
 
 
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        Log.d("[CURSOR ADAPTER]: ", "Get view go! " + i);
+        i++;
+        return super.getView(position, convertView, parent);
+
+    }
 
     /**
      * Makes a new view to hold the data pointed to by cursor.
@@ -117,98 +117,16 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
 
 
+
         //-------------------------------CheckBox Service-------------------------------------------
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        setVisibilityOfCheckbox(viewHolder);
 
         viewHolder.checkBox.setTag(cursor.getPosition());
 
-        handleWhenSelectOrUnselectButtonPressed(cursor, itemID);
-        handleWhenSingleCheckBoxPressed(cursor, itemID);
-
-
-        checkIfClearListOfCheckedItems();
-        checkAllPositions_fromSelectedItemPositions(cursor, viewHolder);
-
-
-        deleteCheckedItems();
-
     }
 
-    private void deleteCheckedItems() {
-    }
+    public void setCheckboxesVisible(boolean isVisible) {
 
-    private void handleWhenSelectOrUnselectButtonPressed(Cursor cursor, int itemID) {
-        if(isPressed_SelectOrUnselectAll_Button) {
-            if (isUnselectMode) {
-                unselectAllSelected = true;
-            } else {
-                setCheckboxItemChecked(cursor, itemID);
-            }
-        }
-    }
-
-    private void handleWhenSingleCheckBoxPressed(Cursor cursor, int itemID) {
-        if(isPressed_SingleCheckBox){
-            if (!isUnselectMode){
-                if(!setOfItemsID_isAlreadyChecked.contains(itemID)){
-                    setCheckboxItemChecked(cursor, itemID);
-                }
-            }
-        }
-    }
-
-    /**
-     * Add item position to list of items going to be checked.
-     * Also add id Of item to set of already checked item.
-     * @param cursor
-     * @param itemID - unique id of item from SQL database
-     */
-    private void setCheckboxItemChecked(Cursor cursor, int itemID) {
-        setOfItemsID_isAlreadyChecked.add(itemID);
-        if (!listOfSelectedItemsPositions.contains(cursor.getPosition())) {
-            listOfSelectedItemsPositions.add(cursor.getPosition());
-        }
-    }
-
-
-
-
-    /**
-     * Check all ArrayList in order to find if checkBox of this item should be checked
-     * and check it (if yes).
-     */
-    private void checkAllPositions_fromSelectedItemPositions(Cursor cursor, ViewHolder viewHolder) {
-        if(listOfSelectedItemsPositions.contains(cursor.getPosition()))
-            viewHolder.checkBox.setChecked(true);
-        else
-            viewHolder.checkBox.setChecked(false);
-    }
-
-
-    /**
-     * In the case when CANCEL DELETE button has been pressed or is necessary to clear
-     * all checked items.
-     * Then clear entire ArrayList with checked checkBox positions and clear Set of already
-     * checked items and reset flag of isPressed_events.
-     */
-    private void checkIfClearListOfCheckedItems() {
-        if (unselectAllSelected){
-            listOfSelectedItemsPositions.clear();
-            setOfItemsID_isAlreadyChecked.clear();
-            isPressed_SelectOrUnselectAll_Button=false;
-            isPressed_SingleCheckBox=false;
-            unselectAllSelected = false;
-        }
-    }
-
-
-
-    private void setVisibilityOfCheckbox(ViewHolder viewHolder) {
-        if (isItemsCheckboxVisible)
-            viewHolder.checkBox.setVisibility(View.VISIBLE);
-        else
-            viewHolder.checkBox.setVisibility(View.GONE);
     }
 
 
@@ -217,6 +135,8 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
      */
     public class ViewHolder{
         CheckBox checkBox;
+        boolean isSelected;
+        boolean isCheckboxVisible;
 
 
 
@@ -225,26 +145,23 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
             setOnCheckedChangeListener();
         }
 
+
+
         private void setOnCheckedChangeListener() {
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                public void onCheckedChanged(CompoundButton compoundButton, boolean selected) {
                     int position = (int) compoundButton.getTag();
-                    if(b){
-                        if(!listOfSelectedItemsPositions.contains(position))
+                    if(selected){
+                        if(!listOfSelectedItemsPositions.contains(position)){
                             listOfSelectedItemsPositions.add(position);
+                            isSelected = true;
+                        }
+
                     }else{
                         listOfSelectedItemsPositions.remove((Object) position);
+                        isSelected = false;
                     }
-                }
-            });
-
-            checkBox.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    isPressed_SingleCheckBox = true;
-                    isPressed_SelectOrUnselectAll_Button = false;
-                    return false;
                 }
             });
         }

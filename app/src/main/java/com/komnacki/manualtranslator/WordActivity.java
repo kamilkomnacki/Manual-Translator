@@ -163,7 +163,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     //---------------------------------------------------------------
-    //-------------------SAVE PET------------------------------------
+    //-------------------SAVE WORD------------------------------------
     //---------------------------------------------------------------
     private void backwardToParentActivity() {
         if(flag_dataHasChanged){

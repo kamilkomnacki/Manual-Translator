@@ -26,7 +26,6 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -41,9 +40,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
@@ -73,22 +69,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
 
-        ArrayList<Word> exampleListOfWords = new ArrayList<>();
-        exampleListOfWords.add(new Word("fragile", "kruchy"));
-        exampleListOfWords.add(new Word("emphatic", "dobitny"));
-        exampleListOfWords.add(new Word("setbacks", "niepowodzenia"));
-        exampleListOfWords.add(new Word("underlying", "zasadniczy"));
-        exampleListOfWords.add(new Word("assume", "przyjąć"));
-        exampleListOfWords.add(new Word("discrepancy", "rozbieżność"));
-        exampleListOfWords.add(new Word("entrench", "obwarować"));
-        exampleListOfWords.add(new Word("outrageous", "oburzający"));
-        exampleListOfWords.add(new Word("condemned", "potępiony"));
-        exampleListOfWords.add(new Word("scrutiny", "przestudiowanie"));
-        exampleListOfWords.add(new Word("unspoilt", "nieskażony"));
-        exampleListOfWords.add(new Word("gorgeus", "wspaniały"));
-        exampleListOfWords.add(new Word("reluctant", "niechętny"));
-
-
 
         listViewOfWords = (ListView) findViewById(R.id.listOfWords);
 
@@ -100,6 +80,9 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         listViewOfWords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                runWordActivityClassForItem(id);
+            }
+            private void runWordActivityClassForItem(long id) {
                 Intent intent = new Intent(WordsCatalogActivity.this, WordActivity.class);
                 Uri currentWordUri = ContentUris.withAppendedId(WordDbEntry.CONTENT_URI, id);
 
@@ -107,6 +90,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 startActivity(intent);
             }
         });
+
+
 
         getLoaderManager().initLoader(WORD_LOADER,null, this);
 
@@ -145,81 +130,26 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         btn_deleteOnOptionMenu.setVisible(false);
         deletePanel.setVisibility(View.VISIBLE);
         floatingBTN_delete.setVisibility(View.VISIBLE);
-        btn_selectAll.setText("Select all");
-        showCheckboxForEveryItem(true);
-        refreshView();
 
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+        WordsList list = new WordsList(getApplicationContext(), cursorAdapter.getCursor());
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
 
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.btn_wordCatalog_deletePanel_selectAll:
-                        set_selectOrUnselect_mode();
-                        refreshView();
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
-                        unselectAllCheckedItems();
-                        showCheckboxForEveryItem(false);
-                        deletePanel.setVisibility(View.GONE);
-                        floatingBTN_delete.setVisibility(View.GONE);
-                        btn_deleteOnOptionMenu.setVisible(true);
-                        refreshView();
-                        break;
-                    case R.id.floatingButton_catalogActivity_delete:
-                        deleteCheckedItems();
                         break;
                 }
 
-            }
-
-            private void deleteCheckedItems() {
-                List<String> listOfID_toDelete = new ArrayList<>();
-                //SparseBooleanArray checkedItems = listViewOfWords.getCheckedItemPositions();
-                //Toast.makeText(WordsCatalogActivity.this, "checkedItems: " + checkedItems, Toast.LENGTH_SHORT).show();
-                int listItemCount = listViewOfWords.getCount();
-                for(int i=0; i<listItemCount; i++){
-                }
-
-                Toast.makeText(WordsCatalogActivity.this, "" + cursorAdapter.listOfSelectedItemsPositions, Toast.LENGTH_SHORT).show();
-            }
-
-            private void unselectAllCheckedItems() {
-                cursorAdapter.unselectAllSelected = true;
-            }
-
-            private void set_selectOrUnselect_mode() {
-                if(btn_selectAll.getText().equals("Select all")) {
-                    btn_selectAll.setText("Unselect all");
-                    cursorAdapter.isUnselectMode = false;
-                }else {
-                    btn_selectAll.setText("Select all");
-                    cursorAdapter.isUnselectMode = true;
-                }
-
-                cursorAdapter.isPressed_SelectOrUnselectAll_Button = true;
             }
         };
-
-
-
-
-        btn_selectAll.setOnClickListener(clickListener);
-        btn_cancelDelete.setOnClickListener(clickListener);
-        floatingBTN_delete.setOnClickListener(clickListener);
-
+        list.refreshListOfWordItems(cursorAdapter.getCursor());
     }
-
-
-    private void showCheckboxForEveryItem(boolean isEnable) {
-        cursorAdapter.isItemsCheckboxVisible = isEnable;
-    }
-
-    private void refreshView() {
-        cursorAdapter.notifyDataSetChanged();
-    }
-
-
 
 
 
@@ -228,44 +158,19 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
     private void insertWord() {
-
         ContentValues contentValues = new ContentValues();
         contentValues.put(WordDbEntry.COLUMN_WORD_NAME, "gorgeus");
         contentValues.put(WordDbEntry.COLUMN_WORD_TRANSLATION, "wspaniały");
         contentValues.put(WordDbEntry.COLUMN_WORD_CATEGORY, "category 1");
         contentValues.put(WordDbEntry.COLUMN_WORD_LANGUAGE, "language 1");
 
-
-
         Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
         Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();
     }
 
-    private void displayDatabaseInfo(){
-        SQLiteDatabase database = dbHelper.getReadableDatabase();
 
-
-        String[] projection = {
-                WordDbEntry._ID,
-                WordDbEntry.COLUMN_WORD_NAME,
-                WordDbEntry.COLUMN_WORD_TRANSLATION
-        };
-
-        Cursor cursor = database.query(
-                WordDbEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-
-
-
-    }
-
+    //----------------------------------------------------------------------------------------------
+    //--------------------------------LOADER--------------------------------------------------------
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = {
@@ -283,10 +188,12 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 null);
     }
 
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         cursorAdapter.swapCursor(cursor);
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {

@@ -20,12 +20,19 @@
 package com.komnacki.manualtranslator;
 
 
-public class Word {
+public class WordModel {
+    private int id;
     private String word;
     private String translation;
-    private boolean isChecked;
+    private boolean isSelected;
 
-    public Word(String word, String translation){
+    public WordModel(int id, boolean isSelected){
+        this.isSelected = isSelected;
+        this.id = id;
+    }
+
+    public WordModel(int id, String word, String translation){
+        this.id = id;
         this.word = word;
         this.translation = translation;
     }
@@ -38,8 +45,8 @@ public class Word {
     public String getTranslation() {return translation;}
 
 
-    public boolean isChecked() {
-        return isChecked;
+    public boolean isSelected() {
+        return isSelected;
     }
 
 }

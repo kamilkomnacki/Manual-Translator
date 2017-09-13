@@ -28,7 +28,7 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 
 /**
- * Database helper for Word app.
+ * Database helper for WordModel app.
  * Manages database creation and version management.
  */
 public class WordDbHelper extends SQLiteOpenHelper {
