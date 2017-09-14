@@ -51,13 +51,16 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     /** To store all items ID is Already checked*/
     Set<Integer> setOfItemsID_isAlreadyChecked;
 
-
+    private int isCheckBoxVisible;
+    private boolean isCheckBoxSelected;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
         listOfSelectedItemsPositions = new ArrayList<>();
         setOfItemsID_isAlreadyChecked = new HashSet<>();
+        isCheckBoxVisible = View.GONE;
+        isCheckBoxSelected = false;
 
     }
 
@@ -125,15 +128,21 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
         viewHolder.checkBox.setTag(cursor.getPosition());
 
+        viewHolder.checkBox.setVisibility(isCheckBoxVisible);
+
+        viewHolder.checkBox.setChecked(isCheckBoxSelected);
+
     }
+
 
 
 
     public void setCheckboxesVisible(boolean isVisible) {
-        if(isVisible) {
-            list.init(this.getCursor());
-        }
+        isCheckBoxVisible = isVisible ? View.VISIBLE : View.GONE;
+        this.notifyDataSetChanged();
     }
+
+
 
 
     /**
@@ -142,7 +151,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     public class ViewHolder{
         CheckBox checkBox;
         boolean isSelected;
-        boolean isCheckboxVisible;
 
 
 
@@ -160,8 +168,11 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
                     int position = (int) compoundButton.getTag();
                     if(selected){
                         if(!listOfSelectedItemsPositions.contains(position)){
+
                             listOfSelectedItemsPositions.add(position);
                             isSelected = true;
+
+
                         }
 
                     }else{

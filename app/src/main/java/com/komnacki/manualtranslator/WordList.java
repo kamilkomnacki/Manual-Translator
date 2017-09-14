@@ -15,7 +15,7 @@ public class WordList {
 
     public static final String LOG_TAG = "WORD_LIST";
     private Map<Integer, WordModel> listOfWordItems;
-    private boolean isDefaultSelectedItem;
+    private boolean isDefaultSelected;
 
 
     private WordList(){}
@@ -36,12 +36,12 @@ public class WordList {
             fillListOfWordItems(cursor);
 
         Log.d(LOG_TAG, "size of cursor : " + listOfWordItems.size());
-        Log.d(LOG_TAG, "items in cursor: " + listOfWordItems);
+        Log.d(LOG_TAG, "items in cursor: " + listOfWordItems.keySet());
     }
 
 
-    public void setDefaultSelectedItem(boolean defaultSelectedItem) {
-        isDefaultSelectedItem = defaultSelectedItem;
+    public void setDefaultSelectMode(boolean isDefaultSelected) {
+        this.isDefaultSelected = isDefaultSelected;
     }
 
 
@@ -52,7 +52,7 @@ public class WordList {
             do {
                 int id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(WordDbContract.WordDbEntry._ID)));
                 if(!listOfWordItems.containsKey(id)){
-                    listOfWordItems.put(id, new WordModel(id, isDefaultSelectedItem));
+                    listOfWordItems.put(id, new WordModel(id, isDefaultSelected));
                     Log.d(LOG_TAG, " Add id to list: " + String.valueOf(id));
                 }
             } while(cursor.moveToNext());
@@ -64,7 +64,7 @@ public class WordList {
         Log.d(LOG_TAG, "Size of list: " + listOfWordItems.size());
     }
 
-    public void selectAll(){
+    protected void selectAll(){
         for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
             entry.getValue().setSelected(true);
         }

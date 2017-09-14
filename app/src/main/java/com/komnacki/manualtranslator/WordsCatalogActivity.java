@@ -121,15 +121,17 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     }
 
 
-    private void deleteListItemsMode(final MenuItem btn_deleteOnOptionMenu) {
+    private void deleteListItemsMode(final MenuItem btn_onOptionMenu_delete) {
         final LinearLayout deletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
         final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_selectAll);
         final Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_cancelDelete);
         final FloatingActionButton floatingBTN_delete = (FloatingActionButton) findViewById(R.id.floatingButton_catalogActivity_delete);
 
-        btn_deleteOnOptionMenu.setVisible(false);
+        btn_onOptionMenu_delete.setVisible(false);
         deletePanel.setVisibility(View.VISIBLE);
         floatingBTN_delete.setVisibility(View.VISIBLE);
+        cursorAdapter.setCheckboxesVisible(true);
+        cursorAdapter.list.init(cursorAdapter.getCursor());
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,14 +143,16 @@ public class WordsCatalogActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.btn_wordCatalog_deletePanel_selectAll:
+
+                        Toast.makeText(getApplicationContext(), "Selected items: " + cursorAdapter.list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
-                        btn_deleteOnOptionMenu.setVisible(true);
+                        btn_onOptionMenu_delete.setVisible(true);
                         deletePanel.setVisibility(View.GONE);
                         floatingBTN_delete.setVisibility(View.GONE);
+                        cursorAdapter.setCheckboxesVisible(false);
                         break;
                     case R.id.floatingButton_catalogActivity_delete:
-                        cursorAdapter.setCheckboxesVisible(true);
 //                        list.selectAll();
 //                        Toast.makeText(getApplicationContext(), "Selected items: " + list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
                         break;
