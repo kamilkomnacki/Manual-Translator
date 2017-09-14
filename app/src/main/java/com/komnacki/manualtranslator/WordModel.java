@@ -49,4 +49,8 @@ public class WordModel {
         return isSelected;
     }
 
+    public void setSelected(boolean isSelected){
+        this.isSelected = isSelected;
+    }
+
 }

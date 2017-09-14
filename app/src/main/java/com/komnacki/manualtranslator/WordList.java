@@ -1,31 +1,44 @@
 package com.komnacki.manualtranslator;
 
 
-import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbContract;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class WordsList {
+public class WordList {
 
     public static final String LOG_TAG = "WORD_LIST";
     private Map<Integer, WordModel> listOfWordItems;
     private boolean isDefaultSelectedItem;
 
 
+    private WordList(){}
 
-    public WordsList(Context context, Cursor cursor) {
-        listOfWordItems = new HashMap<>();
-        int i=0;
-        fillListOfWordItems(cursor);
-
-        Toast.makeText(context ,"The cursor has: " + listOfWordItems.size() + " items: " + listOfWordItems , Toast.LENGTH_LONG).show();
+    private static class WordListSingletonHolder{
+        private static final WordList INSTANCE = new WordList();
     }
+
+    public static WordList getInstance(){
+        return WordListSingletonHolder.INSTANCE;
+    }
+
+
+    public void init(Cursor cursor){
+        listOfWordItems = new HashMap<>();
+
+        if(cursor.moveToFirst()){}
+            fillListOfWordItems(cursor);
+
+        Log.d(LOG_TAG, "size of cursor : " + listOfWordItems.size());
+        Log.d(LOG_TAG, "items in cursor: " + listOfWordItems);
+    }
+
 
     public void setDefaultSelectedItem(boolean defaultSelectedItem) {
         isDefaultSelectedItem = defaultSelectedItem;
@@ -49,6 +62,22 @@ public class WordsList {
     public void refreshListOfWordItems(Cursor cursor){
         fillListOfWordItems(cursor);
         Log.d(LOG_TAG, "Size of list: " + listOfWordItems.size());
+    }
+
+    public void selectAll(){
+        for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
+            entry.getValue().setSelected(true);
+        }
+    }
+
+    public List<Integer> getSelectedItemsID(){
+        List<Integer> selectedItems = new ArrayList<>();
+        for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
+            if(entry.getValue().isSelected()){
+                selectedItems.add(entry.getKey());
+            }
+        }
+        return selectedItems;
     }
 
 

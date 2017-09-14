@@ -43,6 +43,8 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
     int i = 0;
 
+    WordList list = WordList.getInstance();
+
     /** To store all selected items positions*/
     List<Integer> listOfSelectedItemsPositions;
 
@@ -125,8 +127,12 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
     }
 
-    public void setCheckboxesVisible(boolean isVisible) {
 
+
+    public void setCheckboxesVisible(boolean isVisible) {
+        if(isVisible) {
+            list.init(this.getCursor());
+        }
     }
 
 

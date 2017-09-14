@@ -133,7 +133,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
-        WordsList list = new WordsList(getApplicationContext(), cursorAdapter.getCursor());
+
         //////////////////////////////////////////////////////////////////////////////////////////////////////
 
         View.OnClickListener clickListener = new View.OnClickListener() {
@@ -143,12 +143,24 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                     case R.id.btn_wordCatalog_deletePanel_selectAll:
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
+                        btn_deleteOnOptionMenu.setVisible(true);
+                        deletePanel.setVisibility(View.GONE);
+                        floatingBTN_delete.setVisibility(View.GONE);
+                        break;
+                    case R.id.floatingButton_catalogActivity_delete:
+                        cursorAdapter.setCheckboxesVisible(true);
+//                        list.selectAll();
+//                        Toast.makeText(getApplicationContext(), "Selected items: " + list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
                         break;
                 }
 
             }
         };
-        list.refreshListOfWordItems(cursorAdapter.getCursor());
+
+
+        floatingBTN_delete.setOnClickListener(clickListener);
+        btn_cancelDelete.setOnClickListener(clickListener);
+        btn_selectAll.setOnClickListener(clickListener);
     }
 
 
