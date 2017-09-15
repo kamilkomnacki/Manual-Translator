@@ -143,18 +143,20 @@ public class WordsCatalogActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.btn_wordCatalog_deletePanel_selectAll:
-
-                        Toast.makeText(getApplicationContext(), "Selected items: " + cursorAdapter.list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
+                        cursorAdapter.selectAll();
+                        cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
                         btn_onOptionMenu_delete.setVisible(true);
                         deletePanel.setVisibility(View.GONE);
                         floatingBTN_delete.setVisibility(View.GONE);
                         cursorAdapter.setCheckboxesVisible(false);
+                        cursorAdapter.unselectAll();
+                        cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.floatingButton_catalogActivity_delete:
 //                        list.selectAll();
-//                        Toast.makeText(getApplicationContext(), "Selected items: " + list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Selected items: " + cursorAdapter.list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
                         break;
                 }
 

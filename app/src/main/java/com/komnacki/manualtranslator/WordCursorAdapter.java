@@ -29,11 +29,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
@@ -46,31 +45,26 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     WordList list = WordList.getInstance();
 
     /** To store all selected items positions*/
-    List<Integer> listOfSelectedItemsPositions;
+    Set<Integer> setOfSelectedItemsPositions;
 
     /** To store all items ID is Already checked*/
-    Set<Integer> setOfItemsID_isAlreadyChecked;
+    Set<Integer> setOfItemsPosition;
 
-    private int isCheckBoxVisible;
-    private boolean isCheckBoxSelected;
+    private int checkBoxVisibility;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
-        listOfSelectedItemsPositions = new ArrayList<>();
-        setOfItemsID_isAlreadyChecked = new HashSet<>();
-        isCheckBoxVisible = View.GONE;
-        isCheckBoxSelected = false;
+        setOfSelectedItemsPositions = new HashSet<>();
+        setOfItemsPosition = new HashSet<>();
+        checkBoxVisibility = View.GONE;
 
     }
 
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d("[CURSOR ADAPTER]: ", "Get view go! " + i);
-        i++;
         return super.getView(position, convertView, parent);
-
     }
 
     /**
@@ -111,8 +105,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
         String wordName = itemID + " " + cursor.getString(nameColumnIndex);
         String wordTranslation = cursor.getString(translationColumnIndex);
 
-
-
         nameTextView.setText(wordName);
         translationTextView.setText(wordTranslation);
 
@@ -125,21 +117,59 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
         //-------------------------------CheckBox Service-------------------------------------------
         ViewHolder viewHolder = (ViewHolder) view.getTag();
+        int position = cursor.getPosition();
 
-        viewHolder.checkBox.setTag(cursor.getPosition());
+        viewHolder.checkBox.setTag(position);
 
-        viewHolder.checkBox.setVisibility(isCheckBoxVisible);
+        viewHolder.checkBox.setVisibility(checkBoxVisibility);
 
-        viewHolder.checkBox.setChecked(isCheckBoxSelected);
+        selectItems(viewHolder, position, itemID);
 
+//        if(viewHolder.checkBox.getVisibility() == View.VISIBLE) {
+//            if (viewHolder.checkBox.isChecked()) {
+//                //Toast.makeText(context, "Selected item: " + itemID, Toast.LENGTH_SHORT).show();
+//                list.selectItem(itemID);
+//            } else {
+//                //Toast.makeText(context, "Unselected item: " + itemID, Toast.LENGTH_SHORT).show();
+//                list.unselectItem(itemID);
+//            }
+//        }
+
+    }
+
+    private void selectItems(ViewHolder view, int position, int id) {
+        if(setOfSelectedItemsPositions.contains(position)){
+            view.checkBox.setChecked(true);
+            list.selectItem(id);
+        } else{
+            view.checkBox.setChecked(false);
+            list.unselectItem(id);
+        }
+
+    }
+
+    public void selectAll(){
+        Cursor cursor = getCursor();
+        int i=0;
+        if(cursor.moveToFirst()){
+            do{
+                setOfSelectedItemsPositions.add(cursor.getPosition());
+                list.selectAll();
+            }while(cursor.moveToNext());
+        }
+        Log.d("WORD", "how many times cursor moved? " + i);
+        Log.d("WORD", "selectAll: SETofSelectedPositions " + setOfSelectedItemsPositions);
+    }
+
+    public void unselectAll(){
+        setOfSelectedItemsPositions.clear();
+        list.unselectAll();
     }
 
 
 
-
     public void setCheckboxesVisible(boolean isVisible) {
-        isCheckBoxVisible = isVisible ? View.VISIBLE : View.GONE;
-        this.notifyDataSetChanged();
+        checkBoxVisibility = isVisible ? View.VISIBLE : View.GONE;
     }
 
 
@@ -150,7 +180,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
      */
     public class ViewHolder{
         CheckBox checkBox;
-        boolean isSelected;
 
 
 
@@ -167,18 +196,14 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
                 public void onCheckedChanged(CompoundButton compoundButton, boolean selected) {
                     int position = (int) compoundButton.getTag();
                     if(selected){
-                        if(!listOfSelectedItemsPositions.contains(position)){
-
-                            listOfSelectedItemsPositions.add(position);
-                            isSelected = true;
-
-
+                        if(!setOfSelectedItemsPositions.contains(position)){
+                            setOfSelectedItemsPositions.add(position);
+                            Toast.makeText(compoundButton.getContext(), "selectedpositions: " + setOfSelectedItemsPositions, Toast.LENGTH_SHORT).show();
                         }
-
                     }else{
-                        listOfSelectedItemsPositions.remove((Object) position);
-                        isSelected = false;
-                    }
+                        setOfSelectedItemsPositions.remove((Object) position);}
+
+                    notifyDataSetChanged();
                 }
             });
         }
