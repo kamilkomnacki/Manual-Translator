@@ -101,11 +101,11 @@ public class WordList {
         }
     }
 
-    public List<Integer> getSelectedItemsID(){
-        List<Integer> selectedItems = new ArrayList<>();
+    public List<String> getSelectedItemsID(){
+        List<String> selectedItems = new ArrayList<>();
         for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
             if(entry.getValue().isSelected()){
-                selectedItems.add(entry.getKey());
+                selectedItems.add(String.valueOf(entry.getKey()));
             }
         }
         return selectedItems;

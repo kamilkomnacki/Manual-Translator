@@ -155,8 +155,11 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                         cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.floatingButton_catalogActivity_delete:
-//                        list.selectAll();
-                        Toast.makeText(getApplicationContext(), "Selected items: " + cursorAdapter.list.getSelectedItemsID(), Toast.LENGTH_LONG).show();
+                        int size = cursorAdapter.list.getSelectedItemsID().size();
+                        String[] itemsToDelete = cursorAdapter.list.getSelectedItemsID().toArray(new String[size]);
+
+                        getContentResolver().delete(WordDbEntry.CONTENT_URI, WordDbEntry._ID, itemsToDelete);
+                        //Toast.makeText(getApplicationContext(), "Selected items: " + itemsToDelete., Toast.LENGTH_LONG).show();
                         break;
                 }
 
