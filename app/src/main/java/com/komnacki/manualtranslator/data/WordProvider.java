@@ -29,6 +29,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.util.Arrays;
 
 public class WordProvider extends ContentProvider{
 
@@ -216,10 +219,18 @@ public class WordProvider extends ContentProvider{
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
         final int match = sUriMatcher.match(uri);
         switch (match){
             case WORDS:
+                selection = selection + " IN (?";
+                for(int i=1; i<selectionArgs.length; i++){
+                    selection += ",?";
+                }
+                selection +=")";
+
                 getContext().getContentResolver().notifyChange(uri, null);
+                Log.d(LOG_TAG, "Delete method data: " + selection + " / " + Arrays.toString(selectionArgs));
                 return db.delete(WordDbContract.WordDbEntry.TABLE_NAME, selection, selectionArgs);
             case WORD_ID:
                 selection = WordDbContract.WordDbEntry._ID + "=?";

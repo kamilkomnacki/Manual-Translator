@@ -103,6 +103,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_words_catalog, menu);
+        cursorAdapter.notifyDataSetChanged();
         return true;
     }
 
@@ -111,6 +112,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         switch(item.getItemId()){
             case R.id.action_insert_dummy_data:
                 insertWord();
+                cursorAdapter.notifyDataSetChanged();
                 //displayDatabaseInfo();
                 return true;
             case R.id.action_delete_words_from_catalogActivity:
@@ -132,6 +134,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         floatingBTN_delete.setVisibility(View.VISIBLE);
         cursorAdapter.setCheckboxesVisible(true);
         cursorAdapter.list.init(cursorAdapter.getCursor());
+        cursorAdapter.notifyDataSetChanged();
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,9 +160,12 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                     case R.id.floatingButton_catalogActivity_delete:
                         int size = cursorAdapter.list.getSelectedItemsID().size();
                         String[] itemsToDelete = cursorAdapter.list.getSelectedItemsID().toArray(new String[size]);
-
+                        String[] tab = {"85"};
                         getContentResolver().delete(WordDbEntry.CONTENT_URI, WordDbEntry._ID, itemsToDelete);
+                        cursorAdapter.unselectAll();
+                        cursorAdapter.notifyDataSetChanged();
                         //Toast.makeText(getApplicationContext(), "Selected items: " + itemsToDelete., Toast.LENGTH_LONG).show();
+
                         break;
                 }
 
