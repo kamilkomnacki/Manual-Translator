@@ -111,5 +111,9 @@ public class WordList {
         return selectedItems;
     }
 
+    public int getCount(){
+        return listOfWordItems.size();
+    }
+
 
 }

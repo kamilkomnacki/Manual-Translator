@@ -23,13 +23,16 @@ import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,12 +44,15 @@ import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
+import java.util.Arrays;
+
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordsCatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
 
 
+    String LOG_TAG = "Word_Catalog_Activity";
 
 
     /** Identifier for the word data loader */
@@ -158,16 +164,16 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                         cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.floatingButton_catalogActivity_delete:
-                        int size = cursorAdapter.list.getSelectedItemsID().size();
-                        String[] itemsToDelete = cursorAdapter.list.getSelectedItemsID().toArray(new String[size]);
-                        String[] tab = {"85"};
-                        getContentResolver().delete(WordDbEntry.CONTENT_URI, WordDbEntry._ID, itemsToDelete);
-                        cursorAdapter.unselectAll();
-                        cursorAdapter.notifyDataSetChanged();
+
+                        showDeleteConfirmationDialog(cursorAdapter.list.getSelectedItemsID().size());
+
                         //Toast.makeText(getApplicationContext(), "Selected items: " + itemsToDelete., Toast.LENGTH_LONG).show();
+
+
 
                         break;
                 }
+                //Tu mozesz sprobowac dac notifyDataSetChanged() + przetestowac!
 
             }
         };
@@ -178,10 +184,54 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         btn_selectAll.setOnClickListener(clickListener);
     }
 
+    private void showDeleteConfirmationDialog(int amountOfWordsToDelete) {
+        if(amountOfWordsToDelete > 0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            //--------------------------------------------------------------------------------------
+            //------------------------MESSAGE----------------------------------------------------
+            String message = (amountOfWordsToDelete > 1) ? "Delete " + amountOfWordsToDelete + " words?" : "Delete this word?";
+            builder.setMessage(message);
+            //------------------------DELETE--------------------------------------------------------
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    delete();
+                }
+            });
+            //------------------------CANCEL--------------------------------------------------------
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    if(dialog != null){
+                        dialog.dismiss();
+                    }
+                }
+            });
+            //--------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------
 
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
 
+        }else
+            Toast.makeText(getApplicationContext(), "Select items to delete", Toast.LENGTH_LONG).show();
+    }
 
+    private void delete(){
+        int size = cursorAdapter.list.getSelectedItemsID().size();
+        Log.d(LOG_TAG, "size: " + size);
+        String[] itemsToDelete = cursorAdapter.list.getSelectedItemsID().toArray(new String[size]);
+        Log.d(LOG_TAG, "items to delete: " + Arrays.toString(itemsToDelete));
+        int result = getContentResolver().delete(WordDbEntry.CONTENT_URI, WordDbEntry._ID, itemsToDelete);
+        Log.d(LOG_TAG, "result: " + result);
+        if(result <= 0)
+            Toast.makeText(getApplicationContext(), "Error occurred with deleting items", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(getApplicationContext(), "Delete successful!", Toast.LENGTH_SHORT).show();
 
+        cursorAdapter.unselectAll();
+        cursorAdapter.notifyDataSetChanged();
+    }
 
 
     private void insertWord() {

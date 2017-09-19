@@ -47,17 +47,17 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     /** To store all selected items positions*/
     Set<Integer> setOfSelectedItemsPositions;
 
-    /** To store all items ID is Already checked*/
-    Set<Integer> setOfItemsPosition;
+
 
     private int checkBoxVisibility;
+    public String text_selectAllBtn;
 
 
     public WordCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
         setOfSelectedItemsPositions = new HashSet<>();
-        setOfItemsPosition = new HashSet<>();
         checkBoxVisibility = View.GONE;
+        text_selectAllBtn = "Select all";
 
     }
 
@@ -145,7 +145,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
             view.checkBox.setChecked(false);
             list.unselectItem(id);
         }
-
     }
 
     public void selectAll(){
