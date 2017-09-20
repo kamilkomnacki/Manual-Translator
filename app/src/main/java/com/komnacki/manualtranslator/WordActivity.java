@@ -21,7 +21,6 @@ package com.komnacki.manualtranslator;
 
 import android.app.LoaderManager;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -242,7 +241,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     //---------------------------------------------------------------
-    //-------------------DELETE PET------------------------------------
+    //-------------------DELETE WORD------------------------------------
     //---------------------------------------------------------------
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -290,11 +289,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     //---------------------------------------------------------------
     //-------------------LOADER--------------------------------------
     //---------------------------------------------------------------
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-
-    }
 
 
     /** Create a projection and a new loader and send it to run on background thread.

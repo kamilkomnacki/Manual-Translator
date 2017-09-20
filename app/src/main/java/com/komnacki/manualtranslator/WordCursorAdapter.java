@@ -15,13 +15,12 @@
 
         You should have received a copy of the GNU General Public License
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
-        */
+*/
 
 package com.komnacki.manualtranslator;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,13 +39,14 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
-    int i = 0;
+    public static final String LOG_TAG = WordCursorAdapter.class.getSimpleName();
 
+
+    /** List object as Singleton*/
     WordList list = WordList.getInstance();
 
     /** To store all selected items positions*/
     Set<Integer> setOfSelectedItemsPositions;
-
 
 
     private int checkBoxVisibility;
@@ -149,15 +149,12 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
     public void selectAll(){
         Cursor cursor = getCursor();
-        int i=0;
         if(cursor.moveToFirst()){
             do{
                 setOfSelectedItemsPositions.add(cursor.getPosition());
                 list.selectAll();
             }while(cursor.moveToNext());
         }
-        Log.d("WORD", "how many times cursor moved? " + i);
-        Log.d("WORD", "selectAll: SETofSelectedPositions " + setOfSelectedItemsPositions);
     }
 
     public void unselectAll(){

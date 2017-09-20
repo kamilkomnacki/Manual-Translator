@@ -1,3 +1,22 @@
+/*
+        Manual Translator Android Aplication
+
+        Copyright (C) 2017 Kamil Komnacki
+
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 package com.komnacki.manualtranslator;
 
 
@@ -11,15 +30,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * WordList
+ * This class is Singleton.
+ * The function of this class is hold the list of wordModels {@link WordModel} from database in
+ * Map<Integer, WordModel> form
+ * .
+ * The list of wordModels is used in {@link com.komnacki.manualtranslator.data.WordProvider}
+ * and {@link WordsCatalogActivity} in order to delete proper data from database.
+ */
+
 public class WordList {
 
     public static final String LOG_TAG = "WORD_LIST";
+
+    /**
+     * The list of all {@link WordModel} from database in Map<Integer, WordModel> form.
+     * Used to contain data by _ID from database. Items ID don't repeat.
+     */
     private Map<Integer, WordModel> listOfWordItems;
+
+
+    /** Flag to represent if new word in listOfWordItems should be selected or not from beginning.*/
     private boolean isDefaultSelected;
 
 
+    //----------------------------------------------------------------------------------------------
+    //----------------------------SINGLETON CONSTRUCTORS--------------------------------------------
     private WordList(){}
-
 
 
     private static class WordListSingletonHolder{
@@ -29,26 +67,44 @@ public class WordList {
     public static WordList getInstance(){
         return WordListSingletonHolder.INSTANCE;
     }
-
-
-    public void init(Cursor cursor){
-        listOfWordItems = new HashMap<>();
-
-        if(cursor.moveToFirst()){}
-            fillListOfWordItems(cursor);
-
-        Log.d(LOG_TAG, "size of cursor : " + listOfWordItems.size());
-        Log.d(LOG_TAG, "items in cursor: " + listOfWordItems.keySet());
-    }
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
 
 
     public void setDefaultSelectMode(boolean isDefaultSelected) {
         this.isDefaultSelected = isDefaultSelected;
     }
 
+    public int getCount(){
+        return listOfWordItems.size();
+    }
+
+
+
+    public void init(Cursor cursor){
+        listOfWordItems = new HashMap<>();
+        fillListOfWordItems(cursor);
+//        Log.d(LOG_TAG, "size of cursor : " + listOfWordItems.size());
+//        Log.d(LOG_TAG, "items in cursor: " + listOfWordItems.keySet());
+    }
+
+    private void fillListOfWordItems(Cursor cursor) {
+        if(cursor.moveToFirst()) {
+            listOfWordItems.clear();
+            do {
+                int id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(WordDbContract.WordDbEntry._ID)));
+                if(!listOfWordItems.containsKey(id)){
+                    listOfWordItems.put(id, new WordModel(id, isDefaultSelected));
+                    //Log.d(LOG_TAG, " Add id to list: " + String.valueOf(id));
+                }
+            } while(cursor.moveToNext());
+        }
+    }
+
+
+
     public void selectItem(int id){
         if(!(listOfWordItems == null)) {
-            Log.d(LOG_TAG, "sellectItem/ID: " + id);
             for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()) {
                 if (entry.getKey().equals(id)) {
                     entry.getValue().setSelected(true);
@@ -70,24 +126,7 @@ public class WordList {
     }
 
 
-
-    private void fillListOfWordItems(Cursor cursor) {
-        if(cursor.moveToFirst()) {
-            listOfWordItems.clear();
-            do {
-                int id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(WordDbContract.WordDbEntry._ID)));
-                if(!listOfWordItems.containsKey(id)){
-                    listOfWordItems.put(id, new WordModel(id, isDefaultSelected));
-                    //Log.d(LOG_TAG, " Add id to list: " + String.valueOf(id));
-                }
-            } while(cursor.moveToNext());
-        }
-    }
-
-    public void refreshListOfWordItems(Cursor cursor){
-        fillListOfWordItems(cursor);
-        Log.d(LOG_TAG, "Size of list: " + listOfWordItems.size());
-    }
+    
 
     protected void selectAll(){
         for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
@@ -101,6 +140,9 @@ public class WordList {
         }
     }
 
+
+
+
     public List<String> getSelectedItemsID(){
         List<String> selectedItems = new ArrayList<>();
         for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()){
@@ -111,9 +153,7 @@ public class WordList {
         return selectedItems;
     }
 
-    public int getCount(){
-        return listOfWordItems.size();
-    }
+
 
 
 }

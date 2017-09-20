@@ -29,9 +29,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
-import java.util.Arrays;
 
 public class WordProvider extends ContentProvider{
 
@@ -193,12 +190,6 @@ public class WordProvider extends ContentProvider{
     private Uri insertWord(Uri uri, ContentValues contentValues) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        //String name = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_NAME);
-        String name = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_NAME);
-        String translation = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_TRANSLATION);
-        String category = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_CATEGORY);
-        String language = contentValues.getAsString(WordDbContract.WordDbEntry.COLUMN_WORD_LANGUAGE);
-
         long id = db.insert(WordDbContract.WordDbEntry.TABLE_NAME, null, contentValues);
         if(id == -1){
             return null;
@@ -223,14 +214,9 @@ public class WordProvider extends ContentProvider{
         final int match = sUriMatcher.match(uri);
         switch (match){
             case WORDS:
-                selection = selection + " IN (?";
-                for(int i=1; i<selectionArgs.length; i++){
-                    selection += ",?";
-                }
-                selection +=")";
-
+                selection = getSelection(selection, selectionArgs.length);
                 getContext().getContentResolver().notifyChange(uri, null);
-                Log.d(LOG_TAG, "Delete method data: " + selection + " / " + Arrays.toString(selectionArgs));
+                //Log.d(LOG_TAG, "delete() data to delete: " + selection + " / " + Arrays.toString(selectionArgs));
                 return db.delete(WordDbContract.WordDbEntry.TABLE_NAME, selection, selectionArgs);
             case WORD_ID:
                 selection = WordDbContract.WordDbEntry._ID + "=?";
@@ -240,7 +226,26 @@ public class WordProvider extends ContentProvider{
             default:
                 throw new IllegalArgumentException("Deletion is not supported for: " + uri);
         }
+    }
 
+    /**
+     * In order to build selection clause (WHERE in SQLite): WHERE selection IN(args[]).
+     *
+     * The arguments from String[] selectionArgs will be divided by comma ","
+     * and sign by question mark "?". It's required to avoid SQL injection.
+     *
+     * @param selection - the name of column (columns) (...WHERE selection IN...)
+     * @param numberOfItemsToDelete - number of items to delete from selectionArgs[]
+     * @return String selection with " IN ( ? ,? ,? ...) "
+     */
+    @NonNull
+    private String getSelection(@Nullable String selection, int numberOfItemsToDelete) {
+        selection = selection + " IN (?";
+        for(int i=1; i<numberOfItemsToDelete; i++){
+            selection += ",?";
+        }
+        selection +=")";
+        return selection;
     }
 
 
