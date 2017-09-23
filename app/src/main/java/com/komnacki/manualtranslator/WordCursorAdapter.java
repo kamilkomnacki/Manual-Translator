@@ -128,10 +128,10 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 //        if(viewHolder.checkBox.getVisibility() == View.VISIBLE) {
 //            if (viewHolder.checkBox.isChecked()) {
 //                //Toast.makeText(context, "Selected item: " + itemID, Toast.LENGTH_SHORT).show();
-//                list.selectItem(itemID);
+//                list.selectItemById(itemID);
 //            } else {
 //                //Toast.makeText(context, "Unselected item: " + itemID, Toast.LENGTH_SHORT).show();
-//                list.unselectItem(itemID);
+//                list.unselectItemById(itemID);
 //            }
 //        }
 
@@ -140,10 +140,10 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
     private void selectItems(ViewHolder view, int position, int id) {
         if(setOfSelectedItemsPositions.contains(position)){
             view.checkBox.setChecked(true);
-            list.selectItem(id);
+            list.selectItemById(id);
         } else{
             view.checkBox.setChecked(false);
-            list.unselectItem(id);
+            list.unselectItemById(id);
         }
     }
 

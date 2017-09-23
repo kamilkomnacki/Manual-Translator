@@ -103,7 +103,7 @@ public class WordList {
 
 
 
-    public void selectItem(int id){
+    public void selectItemById(int id){
         if(!(listOfWordItems == null)) {
             for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()) {
                 if (entry.getKey().equals(id)) {
@@ -114,7 +114,7 @@ public class WordList {
             Log.e(LOG_TAG, "Unable to select item: " + id + ". listOfWordItem is null!");
     }
 
-    public void unselectItem(int id){
+    public void unselectItemById(int id){
         if(!(listOfWordItems == null)) {
             for (Map.Entry<Integer, WordModel> entry : listOfWordItems.entrySet()) {
                 if (entry.getKey().equals(id)) {
