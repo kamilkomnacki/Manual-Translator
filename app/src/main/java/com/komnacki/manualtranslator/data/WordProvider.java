@@ -87,6 +87,7 @@ public class WordProvider extends ContentProvider{
     @Override
     public boolean onCreate() {
         mDbHelper = new WordDbHelper(getContext());
+
         return false;
     }
 
