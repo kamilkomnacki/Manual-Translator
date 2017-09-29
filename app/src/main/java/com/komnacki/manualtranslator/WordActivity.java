@@ -96,6 +96,17 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent intent = getIntent();
         currentWordUri = intent.getData();
 
+        Boolean newString;
+        if(savedInstanceState == null){
+            Bundle extras = intent.getExtras();
+            newString = (extras != null) && (extras.getBoolean(String.valueOf(R.string.EXTERNAL_STORAGE_STATE)));
+        }else{
+            newString = (Boolean) savedInstanceState.getSerializable(String.valueOf(R.string.EXTERNAL_STORAGE_STATE));
+        }
+
+        Toast.makeText(getApplicationContext(), String.valueOf(newString), Toast.LENGTH_LONG).show();
+
+
 
         /** Choose the title of activity. */
         if (currentWordUri == null) {

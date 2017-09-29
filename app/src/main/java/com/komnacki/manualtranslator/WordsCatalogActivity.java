@@ -91,8 +91,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
             private void runWordActivityClassForItem(long id) {
                 Intent intent = new Intent(WordsCatalogActivity.this, WordActivity.class);
                 Uri currentWordUri = ContentUris.withAppendedId(WordDbEntry.CONTENT_URI, id);
-
                 intent.setData(currentWordUri);
+                intent.putExtra(String.valueOf(R.string.EXTERNAL_STORAGE_STATE), (dbHelper.isExternalStorageWritable()));
                 startActivity(intent);
             }
         });
