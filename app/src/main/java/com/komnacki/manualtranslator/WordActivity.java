@@ -28,10 +28,12 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -39,6 +41,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import java.io.File;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
@@ -96,6 +100,8 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent intent = getIntent();
         currentWordUri = intent.getData();
 
+
+
         Boolean newString;
         if(savedInstanceState == null){
             Bundle extras = intent.getExtras();
@@ -104,6 +110,13 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             newString = (Boolean) savedInstanceState.getSerializable(String.valueOf(R.string.EXTERNAL_STORAGE_STATE));
         }
 
+        String albumName = "albumName";
+        if(newString){
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), albumName);
+            if(file.mkdirs()){
+                Log.e(LOG_TAG, "Directory not created");
+            }
+        }
         Toast.makeText(getApplicationContext(), String.valueOf(newString), Toast.LENGTH_LONG).show();
 
 
