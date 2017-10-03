@@ -21,7 +21,6 @@ package com.komnacki.manualtranslator;
 
 
 import android.database.Cursor;
-import android.util.Log;
 
 import com.komnacki.manualtranslator.data.WordDbContract;
 
@@ -111,7 +110,7 @@ public class WordList {
                 }
             }
         }else
-            Log.e(LOG_TAG, "Unable to select item: " + id + ". listOfWordItem is null!");
+        {}//Log.e(LOG_TAG, "Unable to select item: " + id + ". listOfWordItem is null!");
     }
 
     public void unselectItemById(int id){
@@ -122,7 +121,7 @@ public class WordList {
                 }
             }
         }else
-            Log.e(LOG_TAG, "Unable to unselect item: " + id + ". listOfWordItem is null!");
+        {}//Log.e(LOG_TAG, "Unable to unselect item: " + id + ". listOfWordItem is null!");
     }
 
 

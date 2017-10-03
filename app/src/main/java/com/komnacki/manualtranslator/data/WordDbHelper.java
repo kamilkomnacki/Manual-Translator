@@ -22,7 +22,6 @@ package com.komnacki.manualtranslator.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 import android.util.Log;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
@@ -46,6 +45,8 @@ public class WordDbHelper extends SQLiteOpenHelper {
      * /data/data/com.komnacki.manualTranslator/databases/
      */
     private static final String DATABASE_NAME = "dictionary.db";
+
+
 
 
     /**
@@ -121,14 +122,8 @@ public class WordDbHelper extends SQLiteOpenHelper {
         Log.d(LOG_TAG, "Tables have been opened succesfully.");
     }
 
-    /** Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
+
+
 
 
 }

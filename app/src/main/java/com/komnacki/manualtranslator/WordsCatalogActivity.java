@@ -19,6 +19,7 @@
 
 package com.komnacki.manualtranslator;
 
+import android.Manifest;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -26,13 +27,17 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,19 +49,20 @@ import android.widget.Toast;
 
 import com.komnacki.manualtranslator.data.WordDbHelper;
 
-import java.util.Arrays;
-
+import static com.komnacki.manualtranslator.data.ExternalStorageContract.EXTERNAL_STORAGE_STATE;
+import static com.komnacki.manualtranslator.data.ExternalStorageContract.REQUEST_PERMISSION_WRITE;
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 public class WordsCatalogActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
 
 
-    String LOG_TAG = "Word_Catalog_Activity";
+    String LOG_TAG = getClass().getName();
 
 
     /** Identifier for the word data loader */
     private static final int WORD_LOADER = 0;
+
 
 
 
@@ -67,14 +73,12 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_words_catalog);
 
-
-
+        getPermissionToWriteExternalStorage();
 
         listViewOfWords = (ListView) findViewById(R.id.listOfWords);
 
@@ -82,6 +86,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
         listViewOfWords.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
 
         listViewOfWords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -92,7 +97,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 Intent intent = new Intent(WordsCatalogActivity.this, WordActivity.class);
                 Uri currentWordUri = ContentUris.withAppendedId(WordDbEntry.CONTENT_URI, id);
                 intent.setData(currentWordUri);
-                intent.putExtra(String.valueOf(R.string.EXTERNAL_STORAGE_STATE), (dbHelper.isExternalStorageWritable()));
+                intent.putExtra(EXTERNAL_STORAGE_STATE, (isExternalStorageWritable()));
                 startActivity(intent);
             }
         });
@@ -104,7 +109,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,11 +223,9 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
     private void delete(){
         int size = cursorAdapter.list.getSelectedItemsID().size();
-        Log.d(LOG_TAG, "size: " + size);
         String[] itemsToDelete = cursorAdapter.list.getSelectedItemsID().toArray(new String[size]);
-        Log.d(LOG_TAG, "items to delete: " + Arrays.toString(itemsToDelete));
         int result = getContentResolver().delete(WordDbEntry.CONTENT_URI, WordDbEntry._ID, itemsToDelete);
-        Log.d(LOG_TAG, "result: " + result);
+
         if(result <= 0)
             Toast.makeText(getApplicationContext(), "Error occurred with deleting items", Toast.LENGTH_LONG).show();
         else
@@ -232,7 +234,6 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         cursorAdapter.unselectAll();
         cursorAdapter.notifyDataSetChanged();
     }
-
 
     private void insertWord() {
         ContentValues contentValues = new ContentValues();
@@ -244,6 +245,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
         Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();
     }
+
+
 
 
     //----------------------------------------------------------------------------------------------
@@ -278,4 +281,61 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     }
 
 
+
+
+
+
+    //----------------------------------------------------------------------------------------------
+    //---------------------------------PERMISSIONS--------------------------------------------------
+    /** Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+
+    /** Initiate request for permissions. */
+    private void getPermissionToWriteExternalStorage() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION_WRITE);
+
+                // REQUEST_PERMISSION_WRITE is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
+    /** Handle permissions result */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_WRITE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    Toast.makeText(this,
+                            "External storage permission granted",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "You must grant permission!", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
 }

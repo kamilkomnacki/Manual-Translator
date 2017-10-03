@@ -32,6 +32,8 @@
         <string name="word_btn_takePicture">Zrob zdjecie</string>
         <string name="word_btn_removePicture">Usun zdjecie</string>
     <string name="EXTERNAL_STORAGE_STATE">EXTERNAL_STORAGE_STATE</string>
+    <string name="Kamil"> Kamil</string>
+
 
 
 </resources>

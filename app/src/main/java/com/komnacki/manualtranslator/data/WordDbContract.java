@@ -31,12 +31,9 @@ import android.provider.BaseColumns;
  */
 public final class WordDbContract {
 
-
-
-
     /**
      * To prevent someone from instantiating the contract class,
-     * I set constructor private
+     * Set constructor as private.
      */
     private WordDbContract() {}
 

@@ -42,6 +42,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.komnacki.manualtranslator.data.ExternalStorageContract;
+
 import java.io.File;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
@@ -60,8 +62,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     private ImageButton imgBtn_picture;
 
 
-    /**
-     * Boolean flag that keeps track of whether the word has been edited (true) or not (false).*/
+    /** Boolean flag that keeps track of whether the word has been edited (true) or not (false).*/
     private boolean flag_dataHasChanged = false;
 
 
@@ -78,9 +79,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     };
 
 
-    /**
-     * OnClickListener that listens for any user click on a View.
-     */
+
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -97,31 +96,54 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_word);
 
+
+        /**
+         * Get intent with data from WordsCatalogActivity.
+         * Data from WordsCatalogActivity is used to manage directories for pictures, sounds ect.
+         */
         Intent intent = getIntent();
         currentWordUri = intent.getData();
 
 
 
-        Boolean newString;
-        if(savedInstanceState == null){
-            Bundle extras = intent.getExtras();
-            newString = (extras != null) && (extras.getBoolean(String.valueOf(R.string.EXTERNAL_STORAGE_STATE)));
-        }else{
-            newString = (Boolean) savedInstanceState.getSerializable(String.valueOf(R.string.EXTERNAL_STORAGE_STATE));
-        }
-
-        String albumName = "albumName";
-        if(newString){
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), albumName);
-            if(file.mkdirs()){
-                Log.e(LOG_TAG, "Directory not created");
-            }
-        }
-        Toast.makeText(getApplicationContext(), String.valueOf(newString), Toast.LENGTH_LONG).show();
+        /**
+         * Check if external storage is accessible.
+         * If yes, go on and create directory for multimedia data.
+         * if no, warn user that is not possible to use functions related with multimedia data.
+         */
+        if(isExternalStorageAccessible(savedInstanceState, intent))
+            createDirectoryForPictures();
+        else
+            showExternalStorageAlertDialog();
 
 
 
-        /** Choose the title of activity. */
+        /**
+         * If new word is created and this activity is used to fill data, the title is "Add new word"
+         * If word is editing and this activity is used to edit data, the title is "Edit word"
+         */
+        setTitleForActivity();
+
+
+
+        /**
+         * Bind java objects with XML elements.
+         */
+        mNameEditText = (EditText) findViewById(R.id.et_word_name);
+        mTranslationEditText = (EditText) findViewById(R.id.et_word_translation);
+        imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
+
+
+
+        /**
+         * Set listeners for objects.
+         */
+        mNameEditText.setOnTouchListener(mTouchListener);
+        mTranslationEditText.setOnTouchListener(mTouchListener);
+        imgBtn_picture.setOnClickListener(clickListener);
+    }
+
+    private void setTitleForActivity() {
         if (currentWordUri == null) {
             setTitle("Add new word");
             invalidateOptionsMenu();
@@ -129,21 +151,44 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             setTitle("Edit word");
             getLoaderManager().initLoader(WORD_LOADER, null, this);
         }
-
-
-
-        mNameEditText = (EditText) findViewById(R.id.et_word_name);
-        mTranslationEditText = (EditText) findViewById(R.id.et_word_translation);
-        imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
-
-        mNameEditText.setOnTouchListener(mTouchListener);
-        mTranslationEditText.setOnTouchListener(mTouchListener);
-
-
-        imgBtn_picture.setOnClickListener(clickListener);
-
     }
 
+    private void showExternalStorageAlertDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(WordActivity.this).create();
+        alertDialog.setTitle("External storage not accessible!");
+        alertDialog.setMessage("You cannot use picture and sound functions, because the problem with external storage occur. Please check if you have enough memory space.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    private void createDirectoryForPictures() {
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ExternalStorageContract.DIRECTORY_PICTURES_NAME);
+        if(file.mkdirs()){
+            Log.e(LOG_TAG, "Directory not created");
+        }
+        if(file.isDirectory()){
+            Log.d(LOG_TAG, "Directory for photos already exist.");
+        }
+    }
+
+    private Boolean isExternalStorageAccessible(Bundle savedInstanceState, Intent intent) {
+        String externalStorageState = ExternalStorageContract.EXTERNAL_STORAGE_STATE;
+        Boolean isExternalStorageAccessible;
+        if(savedInstanceState == null){
+            Bundle extras = intent.getExtras();
+            isExternalStorageAccessible = (extras != null) && (extras.getBoolean(externalStorageState));
+        }else
+            isExternalStorageAccessible = (Boolean) savedInstanceState.getSerializable(externalStorageState);
+
+
+        return isExternalStorageAccessible;
+    }
 
     private void showImageOnFullScreen() {
         Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
