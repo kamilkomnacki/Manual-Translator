@@ -373,7 +373,8 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {
                 WordDbEntry._ID,
                 WordDbEntry.COLUMN_WORD_NAME,
-                WordDbEntry.COLUMN_WORD_TRANSLATION};
+                WordDbEntry.COLUMN_WORD_TRANSLATION,
+                WordDbEntry.COLUMN_WORD_PICTURE_TITLE};
 
         return new CursorLoader(
                 this,
@@ -399,15 +400,22 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             int idColumnIndex = data.getColumnIndex(WordDbEntry._ID);
             int nameColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
             int translationColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
+            int pictureTitleColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_PICTURE_TITLE);
 
             //Extract out the value from the Cursor for rhe given column index.
             String id = data.getString(idColumnIndex);
             String name = data.getString(nameColumnIndex);
             String translation = data.getString(translationColumnIndex);
+            String pictureTitle = data.getString(pictureTitleColumnIndex);
 
             //Update the views on the screen with the values from database.
             mNameEditText.setText(name);
             mTranslationEditText.setText(translation);
+
+            //Toast.makeText(this, "before condition: " + pictureTitle, Toast.LENGTH_SHORT).show();
+            if(pictureTitle == null){
+                Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

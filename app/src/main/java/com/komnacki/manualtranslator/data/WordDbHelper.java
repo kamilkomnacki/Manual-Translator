@@ -53,7 +53,7 @@ public class WordDbHelper extends SQLiteOpenHelper {
      * If you change the database schema, you must increment the DATABASE_VERSION.
      * The onUpgrade() or onDowngrade() method will execute after change version.
      */
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 4;
 
 
     /**
@@ -77,7 +77,8 @@ public class WordDbHelper extends SQLiteOpenHelper {
                 + WordDbEntry.COLUMN_WORD_NAME + " TEXT NOT NULL, "
                 + WordDbEntry.COLUMN_WORD_TRANSLATION + " TEXT, "
                 + WordDbEntry.COLUMN_WORD_CATEGORY + " TEXT, " //wprowadz DEFAULT
-                + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT);";
+                + WordDbEntry.COLUMN_WORD_LANGUAGE + " TEXT,"
+                + WordDbEntry.COLUMN_WORD_PICTURE_TITLE + " TEXT);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_WORDS_TABLE);
         Log.v(LOG_TAG, "Tables have been created successfully.");

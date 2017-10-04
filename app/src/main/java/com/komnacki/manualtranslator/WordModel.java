@@ -25,6 +25,7 @@ public class WordModel {
     private String word;
     private String translation;
     private boolean isSelected;
+    private boolean hasPhoto;
 
     public WordModel(int id, boolean isSelected){
         this.isSelected = isSelected;
@@ -53,4 +54,11 @@ public class WordModel {
         this.isSelected = isSelected;
     }
 
+    public boolean isHasPhoto() {
+        return hasPhoto;
+    }
+
+    public void setHasPhoto(boolean hasPhoto) {
+        this.hasPhoto = hasPhoto;
+    }
 }

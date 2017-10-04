@@ -128,6 +128,14 @@ public final class WordDbContract {
          */
         public static final String COLUMN_WORD_LANGUAGE = "language";
 
+
+        /**
+         * The picture name of word in photo album on external storage.
+         *
+         * Type: TEXT
+         */
+        public static final String COLUMN_WORD_PICTURE_TITLE = "picture_title";
+
     }
 
 }
