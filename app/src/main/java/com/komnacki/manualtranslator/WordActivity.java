@@ -26,6 +26,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -48,7 +50,8 @@ import java.io.File;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
-
+//TO DO:
+//1. android developers - query free space!
 public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String LOG_TAG = WordActivity.class.getSimpleName();
@@ -412,9 +415,15 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             mNameEditText.setText(name);
             mTranslationEditText.setText(translation);
 
-            //Toast.makeText(this, "before condition: " + pictureTitle, Toast.LENGTH_SHORT).show();
+
             if(pictureTitle == null){
                 Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
+            }else{
+                File file = ExternalStorageContract.getPicturesStorageDir();
+                StringBuilder picturePath = new StringBuilder(file.getPath()).append("/pictureTest.jpg");
+                Bitmap picture = BitmapFactory.decodeFile(picturePath.toString());
+                imgBtn_picture.setImageBitmap(picture);
+                Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
             }
         }
     }

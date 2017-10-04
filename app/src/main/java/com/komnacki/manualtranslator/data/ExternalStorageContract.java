@@ -19,6 +19,10 @@
 package com.komnacki.manualtranslator.data;
 
 
+import android.os.Environment;
+
+import java.io.File;
+
 /**
  * Contract class for external storage.
  * This class is a containter for constants that define names for directories, permissions.
@@ -31,6 +35,17 @@ public final class ExternalStorageContract {
      * Set constructor as private.
      */
     private ExternalStorageContract() {}
+
+
+    /**
+     * Get the directory for the user's public pictures directory.
+     * @return File object
+     */
+    public static File getPicturesStorageDir() {
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), DIRECTORY_PICTURES_NAME);
+        return file;
+    }
 
 
     /**
