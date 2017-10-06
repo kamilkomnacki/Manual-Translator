@@ -130,11 +130,11 @@ public final class WordDbContract {
 
 
         /**
-         * The picture name of word in photo album on external storage.
+         * The path to picture of word in photo album on external storage.
          *
          * Type: TEXT
          */
-        public static final String COLUMN_WORD_PICTURE_TITLE = "picture_title";
+        public static final String COLUMN_WORD_PICTURE_PATH = "picture_path";
 
     }
 

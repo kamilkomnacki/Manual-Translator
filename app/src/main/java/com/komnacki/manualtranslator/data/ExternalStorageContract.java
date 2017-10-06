@@ -55,8 +55,12 @@ public final class ExternalStorageContract {
     public static final String DIRECTORY_PICTURES_NAME = "ManualTranslator";
 
 
-    /** Identifier for the permission to write in external storage*/
+    /** Identifier for the permission to write in external storage.*/
     public static final int REQUEST_PERMISSION_WRITE = 1001;
+
+
+    /** Identifier for the permission to capture the picture.*/
+    public static final int REQUEST_IMAGE_CAPTURE = 1002;
 
 
     /** Identifier for send data through intent */

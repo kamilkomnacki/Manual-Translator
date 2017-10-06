@@ -32,6 +32,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -178,7 +179,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     private void showAlertDialogCamera(){
         AlertDialog alertDialog = new AlertDialog.Builder(WordActivity.this).create();
         alertDialog.setTitle("Camera is not accessible!");
-        alertDialog.setMessage("You cannot take a picture, because your device not support this feature.");
+        alertDialog.setMessage("You cannot take a picture, because your device not support this feature or there is no application to take a picture.");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -217,6 +218,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     private void imageClickHandler() {
         if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
             if(imgBtn_picture.getTag() == null){
+                dispatchTakePictureIntent();
                 Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(this, imgBtn_picture.getTag().toString(), Toast.LENGTH_SHORT).show();
@@ -224,12 +226,36 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         }else{
             showAlertDialogCamera();
         }
-
-
     }
+
+
+    private void dispatchTakePictureIntent(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(takePictureIntent.resolveActivity(getPackageManager()) != null){
+            startActivityForResult(takePictureIntent, ExternalStorageContract.REQUEST_IMAGE_CAPTURE);
+        }else{
+            showAlertDialogCamera();
+        }
+    }
+
+
 
     private void showImageOnFullScreen() {
         Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
+    }
+
+    private void setPathToPicture(String picturePath) {
+        if(picturePath == null){
+            //imgBtn_picture.setTag(null);
+            Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
+        }else{
+            Bitmap picture = BitmapFactory.decodeFile(picturePath);
+            imgBtn_picture.setImageBitmap(picture);
+            //imgBtn_picture.setTag(picturePath);
+            Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
+        }
+
+        imgBtn_picture.setTag(picturePath);
     }
 
 
@@ -412,7 +438,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 WordDbEntry._ID,
                 WordDbEntry.COLUMN_WORD_NAME,
                 WordDbEntry.COLUMN_WORD_TRANSLATION,
-                WordDbEntry.COLUMN_WORD_PICTURE_TITLE};
+                WordDbEntry.COLUMN_WORD_PICTURE_PATH};
 
         return new CursorLoader(
                 this,
@@ -438,31 +464,22 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             int idColumnIndex = data.getColumnIndex(WordDbEntry._ID);
             int nameColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_NAME);
             int translationColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_TRANSLATION);
-            int pictureTitleColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_PICTURE_TITLE);
+            int pictureTitleColumnIndex = data.getColumnIndex(WordDbEntry.COLUMN_WORD_PICTURE_PATH);
 
             //Extract out the value from the Cursor for rhe given column index.
             String id = data.getString(idColumnIndex);
             String name = data.getString(nameColumnIndex);
             String translation = data.getString(translationColumnIndex);
-            String pictureTitle = data.getString(pictureTitleColumnIndex);
+            String picturePath = data.getString(pictureTitleColumnIndex);
 
             //Update the views on the screen with the values from database.
             mNameEditText.setText(name);
             mTranslationEditText.setText(translation);
-
-
-            if(pictureTitle == null){
-                Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
-            }else{
-                File file = ExternalStorageContract.getPicturesStorageDir();
-                StringBuilder picturePath = new StringBuilder(file.getPath()).append("/pictureTest.jpg");
-                Bitmap picture = BitmapFactory.decodeFile(picturePath.toString());
-                imgBtn_picture.setImageBitmap(picture);
-                imgBtn_picture.setTag(picturePath);
-                Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
-            }
+            setPathToPicture(picturePath);
         }
     }
+
+
 
 
     @Override
