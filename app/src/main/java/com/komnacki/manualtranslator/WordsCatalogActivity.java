@@ -241,7 +241,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         contentValues.put(WordDbEntry.COLUMN_WORD_TRANSLATION, "wspaniały");
         contentValues.put(WordDbEntry.COLUMN_WORD_CATEGORY, "category 1");
         contentValues.put(WordDbEntry.COLUMN_WORD_LANGUAGE, "language 1");
-        contentValues.put(WordDbEntry.COLUMN_WORD_PICTURE_TITLE, "pictureTest");
+//        contentValues.put(WordDbEntry.COLUMN_WORD_PICTURE_TITLE, "pictureTest");
 
         Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, contentValues);
         Toast.makeText(getApplicationContext(), "new row: " + newUri, Toast.LENGTH_SHORT).show();

@@ -25,6 +25,7 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,7 +74,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
      * OnTouchListener that listens for any user touches on a View, implying that they are modifying
      * the view, and we change the flag_dataHasChanged boolean to true.
      */
-    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+    private View.OnTouchListener touchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             flag_dataHasChanged = true;
@@ -88,11 +89,12 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.word_imgBtn_picture:
-                    showImageOnFullScreen();
+                    imageClickHandler();
             }
 
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,9 +117,12 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
          * if no, warn user that is not possible to use functions related with multimedia data.
          */
         if(isExternalStorageAccessible(savedInstanceState, intent))
-            createDirectoryForPictures();
+            setDirectoryForPictures();
         else
-            showExternalStorageAlertDialog();
+            showAlertDialogExternalStorage();
+
+
+
 
 
 
@@ -141,8 +146,8 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         /**
          * Set listeners for objects.
          */
-        mNameEditText.setOnTouchListener(mTouchListener);
-        mTranslationEditText.setOnTouchListener(mTouchListener);
+        mNameEditText.setOnTouchListener(touchListener);
+        mTranslationEditText.setOnTouchListener(touchListener);
         imgBtn_picture.setOnClickListener(clickListener);
     }
 
@@ -156,7 +161,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
-    private void showExternalStorageAlertDialog() {
+    private void showAlertDialogExternalStorage() {
         AlertDialog alertDialog = new AlertDialog.Builder(WordActivity.this).create();
         alertDialog.setTitle("External storage not accessible!");
         alertDialog.setMessage("You cannot use picture and sound functions, because the problem with external storage occur. Please check if you have enough memory space.");
@@ -170,11 +175,27 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         alertDialog.show();
     }
 
-    private void createDirectoryForPictures() {
+    private void showAlertDialogCamera(){
+        AlertDialog alertDialog = new AlertDialog.Builder(WordActivity.this).create();
+        alertDialog.setTitle("Camera is not accessible!");
+        alertDialog.setMessage("You cannot take a picture, because your device not support this feature.");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    private void setDirectoryForPictures() {
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ExternalStorageContract.DIRECTORY_PICTURES_NAME);
-        if(file.mkdirs()){
-            Log.e(LOG_TAG, "Directory not created");
-        }
+        if(file.mkdirs())
+            Log.e(LOG_TAG, "Directory not created.");
+        else
+            Log.e(LOG_TAG, "Directory created.");
+
         if(file.isDirectory()){
             Log.d(LOG_TAG, "Directory for photos already exist.");
         }
@@ -191,6 +212,20 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
         return isExternalStorageAccessible;
+    }
+
+    private void imageClickHandler() {
+        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+            if(imgBtn_picture.getTag() == null){
+                Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, imgBtn_picture.getTag().toString(), Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            showAlertDialogCamera();
+        }
+
+
     }
 
     private void showImageOnFullScreen() {
@@ -423,6 +458,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 StringBuilder picturePath = new StringBuilder(file.getPath()).append("/pictureTest.jpg");
                 Bitmap picture = BitmapFactory.decodeFile(picturePath.toString());
                 imgBtn_picture.setImageBitmap(picture);
+                imgBtn_picture.setTag(picturePath);
                 Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
             }
         }
