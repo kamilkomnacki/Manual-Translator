@@ -49,6 +49,8 @@ import android.widget.Toast;
 import com.komnacki.manualtranslator.data.ExternalStorageContract;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
@@ -59,6 +61,8 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String LOG_TAG = WordActivity.class.getSimpleName();
     private static final int WORD_LOADER = 1;
     private Uri currentWordUri;
+    private String mCurrentPhotoPath;
+    private File directory;
 
 
     /** EditText fields to enter word name and translation*/
@@ -117,10 +121,10 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
          * If yes, go on and create directory for multimedia data.
          * if no, warn user that is not possible to use functions related with multimedia data.
          */
-        if(isExternalStorageAccessible(savedInstanceState, intent))
-            setDirectoryForPictures();
-        else
-            showAlertDialogExternalStorage();
+//        if(isExternalStorageAccessible(savedInstanceState, intent))
+//            setDirectoryForPictures();
+//        else
+//            showAlertDialogExternalStorage();
 
 
 
@@ -141,7 +145,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         mNameEditText = (EditText) findViewById(R.id.et_word_name);
         mTranslationEditText = (EditText) findViewById(R.id.et_word_translation);
         imgBtn_picture = (ImageButton) findViewById(R.id.word_imgBtn_picture);
-
 
 
         /**
@@ -191,13 +194,13 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void setDirectoryForPictures() {
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ExternalStorageContract.DIRECTORY_PICTURES_NAME);
-        if(file.mkdirs())
+        directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ExternalStorageContract.DIRECTORY_PICTURES_NAME);
+        if(directory.mkdirs())
             Log.e(LOG_TAG, "Directory not created.");
         else
             Log.e(LOG_TAG, "Directory created.");
 
-        if(file.isDirectory()){
+        if(directory.isDirectory()){
             Log.d(LOG_TAG, "Directory for photos already exist.");
         }
     }
@@ -219,6 +222,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
             if(imgBtn_picture.getTag() == null){
                 dispatchTakePictureIntent();
+
                 Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(this, imgBtn_picture.getTag().toString(), Toast.LENGTH_SHORT).show();
@@ -229,15 +233,51 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-    private void dispatchTakePictureIntent(){
+    //*************************************************************************
+
+
+
+    static final int REQUEST_TAKE_PHOTO = 1003;
+
+    private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(takePictureIntent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(takePictureIntent, ExternalStorageContract.REQUEST_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            String photoName = getPictureName();
+            File photoPath = new File(ExternalStorageContract.getPicturesStorageDir(), photoName);
+            imgBtn_picture.setTag(photoPath);
+            Uri photoUri = Uri.fromFile(photoPath);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
         }else{
             showAlertDialogCamera();
         }
     }
 
+    private String getPictureName() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timeStamp = simpleDateFormat.format(new Date());
+        return "mt_" + timeStamp + ".jpg";
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK){
+            switch (requestCode){
+                case REQUEST_TAKE_PHOTO:
+                    updateImageInDatabase();
+//                    String name = (String) data.getExtras().get("name");
+//                    Bitmap cameraImage = (Bitmap) data.getExtras().get("data");
+//                    imgBtn_picture.setImageBitmap(cameraImage);
+                    //
+            }
+        }
+
+    }
+
+//*************************************************************************
 
 
     private void showImageOnFullScreen() {
@@ -249,6 +289,9 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             //imgBtn_picture.setTag(null);
             Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
         }else{
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 8;
+
             Bitmap picture = BitmapFactory.decodeFile(picturePath);
             imgBtn_picture.setImageBitmap(picture);
             //imgBtn_picture.setTag(picturePath);
@@ -338,6 +381,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         String nameOfWord = mNameEditText.getText().toString().trim();
         String translationOfWord = mTranslationEditText.getText().toString().trim();
 
+
         if (TextUtils.isEmpty(nameOfWord)) {
             Toast.makeText(this, "Name of word cannot be empty!", Toast.LENGTH_SHORT).show();
             return;
@@ -363,8 +407,32 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 Toast.makeText(this, "Update successful!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
 
+    private void updateImageInDatabase(){
+        String photoPath = imgBtn_picture.getTag().toString();
+        Log.d(LOG_TAG, "Photo path: " + photoPath);
 
+        if(photoPath != null){
+            ContentValues values = new ContentValues();
+            values.put(WordDbEntry.COLUMN_WORD_PICTURE_PATH, photoPath);
+
+            if(currentWordUri == null){
+                Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, values);
+                if(newUri == null){
+                    Toast.makeText(this, "Error with saving picture! Please, try again.", Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(this, "Insert successful!", Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                int rowAffected = getContentResolver().update(currentWordUri, values, null, null);
+                if(rowAffected == 0){
+                    Toast.makeText(this, "Error with updating picture! Please, try again.", Toast.LENGTH_LONG). show();
+                }else{
+                    Toast.makeText(this, "Update successful!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
 
