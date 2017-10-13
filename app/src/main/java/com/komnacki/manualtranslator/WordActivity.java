@@ -49,6 +49,7 @@ import android.widget.Toast;
 import com.komnacki.manualtranslator.data.ExternalStorageContract;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -56,22 +57,26 @@ import static com.komnacki.manualtranslator.data.WordDbContract.WordDbEntry;
 
 //TO DO:
 //1. android developers - query free space!
-public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = WordActivity.class.getSimpleName();
     private static final int WORD_LOADER = 1;
     private Uri currentWordUri;
-    private String mCurrentPhotoPath;
+    private String mImageFileLocation = "";
     private File directory;
 
 
-    /** EditText fields to enter word name and translation*/
+    /**
+     * EditText fields to enter word name and translation
+     */
     private EditText mNameEditText;
     private EditText mTranslationEditText;
     private ImageButton imgBtn_picture;
 
 
-    /** Boolean flag that keeps track of whether the word has been edited (true) or not (false).*/
+    /**
+     * Boolean flag that keeps track of whether the word has been edited (true) or not (false).
+     */
     private boolean flag_dataHasChanged = false;
 
 
@@ -88,13 +93,24 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     };
 
 
-
     private View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.word_imgBtn_picture:
-                    imageClickHandler();
+                    //imageClickHandler();
+                    Intent takePhotoIntent = new Intent();
+                    takePhotoIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                    File photoFile = null;
+                    try {
+                        photoFile = createImageFIle();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                    startActivityForResult(takePhotoIntent, 555);
             }
 
         }
@@ -115,7 +131,6 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         currentWordUri = intent.getData();
 
 
-
         /**
          * Check if external storage is accessible.
          * If yes, go on and create directory for multimedia data.
@@ -127,16 +142,11 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 //            showAlertDialogExternalStorage();
 
 
-
-
-
-
         /**
          * If new word is created and this activity is used to fill data, the title is "Add new word"
          * If word is editing and this activity is used to edit data, the title is "Edit word"
          */
         setTitleForActivity();
-
 
 
         /**
@@ -179,7 +189,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         alertDialog.show();
     }
 
-    private void showAlertDialogCamera(){
+    private void showAlertDialogCamera() {
         AlertDialog alertDialog = new AlertDialog.Builder(WordActivity.this).create();
         alertDialog.setTitle("Camera is not accessible!");
         alertDialog.setMessage("You cannot take a picture, because your device not support this feature or there is no application to take a picture.");
@@ -195,12 +205,12 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void setDirectoryForPictures() {
         directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ExternalStorageContract.DIRECTORY_PICTURES_NAME);
-        if(directory.mkdirs())
+        if (directory.mkdirs())
             Log.e(LOG_TAG, "Directory not created.");
         else
             Log.e(LOG_TAG, "Directory created.");
 
-        if(directory.isDirectory()){
+        if (directory.isDirectory()) {
             Log.d(LOG_TAG, "Directory for photos already exist.");
         }
     }
@@ -208,10 +218,10 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     private Boolean isExternalStorageAccessible(Bundle savedInstanceState, Intent intent) {
         String externalStorageState = ExternalStorageContract.EXTERNAL_STORAGE_STATE;
         Boolean isExternalStorageAccessible;
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             Bundle extras = intent.getExtras();
             isExternalStorageAccessible = (extras != null) && (extras.getBoolean(externalStorageState));
-        }else
+        } else
             isExternalStorageAccessible = (Boolean) savedInstanceState.getSerializable(externalStorageState);
 
 
@@ -219,22 +229,21 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void imageClickHandler() {
-        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-            if(imgBtn_picture.getTag() == null){
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            if (imgBtn_picture.getTag() == null) {
                 dispatchTakePictureIntent();
 
                 Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
-            }else{
+            } else {
                 Toast.makeText(this, imgBtn_picture.getTag().toString(), Toast.LENGTH_SHORT).show();
             }
-        }else{
+        } else {
             showAlertDialogCamera();
         }
     }
 
 
     //*************************************************************************
-
 
 
     static final int REQUEST_TAKE_PHOTO = 1003;
@@ -249,7 +258,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             Uri photoUri = Uri.fromFile(photoPath);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-        }else{
+        } else {
             showAlertDialogCamera();
         }
     }
@@ -264,37 +273,76 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == RESULT_OK){
-            switch (requestCode){
-                case REQUEST_TAKE_PHOTO:
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case 555:
+//                    Bundle extras = data.getExtras();
+//                    Bitmap photoCapturedBitmap = (Bitmap) extras.get("data");
+//                    imgBtn_picture.setImageBitmap(photoCapturedBitmap);
+//                    Toast.makeText(this, "Picture taken successfully", Toast.LENGTH_SHORT).show();
+
+//                    Bitmap photoCapturedBitmap = BitmapFactory.decodeFile(mImageFileLocation);
+//                    imgBtn_picture.setImageBitmap(photoCapturedBitmap);
+
+                    setReducedImageSize();
                     updateImageInDatabase();
-//                    String name = (String) data.getExtras().get("name");
-//                    Bitmap cameraImage = (Bitmap) data.getExtras().get("data");
-//                    imgBtn_picture.setImageBitmap(cameraImage);
-                    //
             }
         }
+    }
+
+    File createImageFIle() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMMdd_HHmmss").format(new Date());
+        String imageFileName = "IMAGE_" + timeStamp + "_";
+        File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        File image = File.createTempFile(imageFileName, ".jpg", storageDirectory);
+        mImageFileLocation = image.getAbsolutePath();
+        return image;
+    }
+
+
+    void setReducedImageSize() {
+        int targetImageViewWidth = imgBtn_picture.getWidth();
+        int targetImageViewHeight = imgBtn_picture.getHeight();
+
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mImageFileLocation, bmOptions);
+
+        int cameraImageWidth = bmOptions.outWidth;
+        int cameraImageHeight = bmOptions.outHeight;
+
+        int scaleFactor = Math.min(cameraImageWidth / targetImageViewWidth, cameraImageHeight / targetImageViewHeight);
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inJustDecodeBounds = false;
+
+        Bitmap photoReducedSizeBitmap = BitmapFactory.decodeFile(mImageFileLocation, bmOptions);
+        imgBtn_picture.setImageBitmap(photoReducedSizeBitmap);
+
 
     }
+
 
 //*************************************************************************
 
 
     private void showImageOnFullScreen() {
-        Toast.makeText(getApplicationContext(), "Image button clicked!",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Image button clicked!", Toast.LENGTH_SHORT).show();
     }
 
-    private void setPathToPicture(String picturePath) {
-        if(picturePath == null){
-            //imgBtn_picture.setTag(null);
+    private void setPicture(String picturePath) {
+        if (picturePath == null) {
             Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
-        }else{
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;
-
-            Bitmap picture = BitmapFactory.decodeFile(picturePath);
-            imgBtn_picture.setImageBitmap(picture);
+        } else {
+            mImageFileLocation = picturePath;
+            setReducedImageSize();
+//            BitmapFactory.Options options = new BitmapFactory.Options();
+//            options.inSampleSize = 8;
+//
+//            Bitmap picture = BitmapFactory.decodeFile(picturePath);
+//            imgBtn_picture.setImageBitmap(picture);
             //imgBtn_picture.setTag(picturePath);
+
             Toast.makeText(this, picturePath, Toast.LENGTH_SHORT).show();
         }
 
@@ -302,46 +350,11 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-
-
-
-    //---------------------------------------------------------------
-    //-------------------OPTION MENU---------------------------------
-    //---------------------------------------------------------------
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_single_word_activity, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_save_word:
-                saveWord();
-                finish();
-                return true;
-            case R.id.action_delete_word:
-                showDeleteConfirmationDialog();
-                return true;
-            case android.R.id.home:
-                backwardToParentActivity();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
-
-
-
     //---------------------------------------------------------------
     //-------------------SAVE WORD------------------------------------
     //---------------------------------------------------------------
     private void backwardToParentActivity() {
-        if(flag_dataHasChanged){
+        if (flag_dataHasChanged) {
             DialogInterface.OnClickListener discardButtonClickListener =
                     new DialogInterface.OnClickListener() {
                         @Override
@@ -350,7 +363,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                         }
                     };
             showUnsavedChangesDialog(discardButtonClickListener);
-        }else{
+        } else {
             NavUtils.navigateUpFromSameTask(WordActivity.this);
         }
     }
@@ -365,7 +378,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.setNegativeButton("Keep editing", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(dialogInterface != null){
+                if (dialogInterface != null) {
                     dialogInterface.dismiss();
                 }
             }
@@ -392,53 +405,47 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         values.put(WordDbEntry.COLUMN_WORD_NAME, nameOfWord);
         values.put(WordDbEntry.COLUMN_WORD_TRANSLATION, translationOfWord);
 
-        if(currentWordUri == null){
+        if (currentWordUri == null) {
             Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, values);
-            if(newUri == null){
+            if (newUri == null) {
                 Toast.makeText(this, "Error with saving word! Please, try again.", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 Toast.makeText(this, "Insert successful!", Toast.LENGTH_SHORT).show();
             }
-        }else{
+        } else {
             int rowAffected = getContentResolver().update(currentWordUri, values, null, null);
-            if(rowAffected == 0){
-                Toast.makeText(this, "Error with updating word! Please, try again.", Toast.LENGTH_LONG). show();
-            }else{
+            if (rowAffected == 0) {
+                Toast.makeText(this, "Error with updating word! Please, try again.", Toast.LENGTH_LONG).show();
+            } else {
                 Toast.makeText(this, "Update successful!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void updateImageInDatabase(){
-        String photoPath = imgBtn_picture.getTag().toString();
-        Log.d(LOG_TAG, "Photo path: " + photoPath);
+    private void updateImageInDatabase() {
+        Log.d(LOG_TAG, "Photo path: " + mImageFileLocation);
 
-        if(photoPath != null){
+        if (mImageFileLocation != null) {
             ContentValues values = new ContentValues();
-            values.put(WordDbEntry.COLUMN_WORD_PICTURE_PATH, photoPath);
+            values.put(WordDbEntry.COLUMN_WORD_PICTURE_PATH, mImageFileLocation);
 
-            if(currentWordUri == null){
+            if (currentWordUri == null) {
                 Uri newUri = getContentResolver().insert(WordDbEntry.CONTENT_URI, values);
-                if(newUri == null){
+                if (newUri == null) {
                     Toast.makeText(this, "Error with saving picture! Please, try again.", Toast.LENGTH_LONG).show();
-                }else{
+                } else {
                     Toast.makeText(this, "Insert successful!", Toast.LENGTH_SHORT).show();
                 }
-            }else{
+            } else {
                 int rowAffected = getContentResolver().update(currentWordUri, values, null, null);
-                if(rowAffected == 0){
-                    Toast.makeText(this, "Error with updating picture! Please, try again.", Toast.LENGTH_LONG). show();
-                }else{
+                if (rowAffected == 0) {
+                    Toast.makeText(this, "Error with updating picture! Please, try again.", Toast.LENGTH_LONG).show();
+                } else {
                     Toast.makeText(this, "Update successful!", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     }
-
-
-
-
-
 
 
     //---------------------------------------------------------------
@@ -456,7 +463,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                if(dialog != null){
+                if (dialog != null) {
                     dialog.dismiss();
                 }
             }
@@ -469,11 +476,11 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     private void deleteWord() {
 
 
-        if (currentWordUri!=null){
+        if (currentWordUri != null) {
             int rowsDeleted = getContentResolver().delete(currentWordUri, null, null);
-            if(rowsDeleted == 0){
+            if (rowsDeleted == 0) {
                 Toast.makeText(this, "Error with deleting word.", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 Toast.makeText(this, "Delete successful!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -481,19 +488,15 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-
-
-
-
-
-
     //---------------------------------------------------------------
     //-------------------LOADER--------------------------------------
     //---------------------------------------------------------------
 
 
-    /** Create a projection and a new loader and send it to run on background thread.
+    /**
+     * Create a projection and a new loader and send it to run on background thread.
      * After it finish in background thread, onLoadFinished method start working.
+     *
      * @param i
      * @param args
      * @return CursorLoader for onLoadFinished.
@@ -521,12 +524,13 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     /**
      * Start working after onCreateLoader finish run on background thread.
      * Assign data to xml-fields.
+     *
      * @param loader
      * @param data
      */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(data.moveToFirst()){
+        if (data.moveToFirst()) {
 
             //Find the columns of word attributes that we're intrested in.
             int idColumnIndex = data.getColumnIndex(WordDbEntry._ID);
@@ -543,13 +547,41 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             //Update the views on the screen with the values from database.
             mNameEditText.setText(name);
             mTranslationEditText.setText(translation);
-            setPathToPicture(picturePath);
+            setPicture(picturePath);
         }
     }
 
-
-
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {}
+
+
+
+
+    //---------------------------------------------------------------
+    //-------------------OPTION MENU---------------------------------
+    //---------------------------------------------------------------
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_single_word_activity, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save_word:
+                saveWord();
+                finish();
+                return true;
+            case R.id.action_delete_word:
+                showDeleteConfirmationDialog();
+                return true;
+            case android.R.id.home:
+                backwardToParentActivity();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }
