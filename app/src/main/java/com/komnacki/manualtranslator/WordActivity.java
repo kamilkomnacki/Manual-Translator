@@ -29,6 +29,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -284,7 +286,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 //                    Bitmap photoCapturedBitmap = BitmapFactory.decodeFile(mImageFileLocation);
 //                    imgBtn_picture.setImageBitmap(photoCapturedBitmap);
 
-                    setReducedImageSize();
+                    rotateImage(setReducedImageSize());
                     updateImageInDatabase();
             }
         }
@@ -301,7 +303,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
-    void setReducedImageSize() {
+    private Bitmap setReducedImageSize() {
         int targetImageViewWidth = imgBtn_picture.getWidth();
         int targetImageViewHeight = imgBtn_picture.getHeight();
 
@@ -316,9 +318,38 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inJustDecodeBounds = false;
 
-        Bitmap photoReducedSizeBitmap = BitmapFactory.decodeFile(mImageFileLocation, bmOptions);
-        imgBtn_picture.setImageBitmap(photoReducedSizeBitmap);
+//        Bitmap photoReducedSizeBitmap = BitmapFactory.decodeFile(mImageFileLocation, bmOptions);
+//        imgBtn_picture.setImageBitmap(photoReducedSizeBitmap);
+        return BitmapFactory.decodeFile(mImageFileLocation, bmOptions);
 
+
+    }
+
+    private void rotateImage(Bitmap bitmap){
+        ExifInterface exifInterface = null;
+        try {
+            exifInterface = new ExifInterface(mImageFileLocation);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        Matrix matrix = new Matrix();
+        switch (orientation){
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(270);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            default:
+        }
+
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        imgBtn_picture.setImageBitmap(rotatedBitmap);
 
     }
 
@@ -335,7 +366,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             Toast.makeText(this, "picture title is null", Toast.LENGTH_SHORT).show();
         } else {
             mImageFileLocation = picturePath;
-            setReducedImageSize();
+            rotateImage(setReducedImageSize());
 //            BitmapFactory.Options options = new BitmapFactory.Options();
 //            options.inSampleSize = 8;
 //
