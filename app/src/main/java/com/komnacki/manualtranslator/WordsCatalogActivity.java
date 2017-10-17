@@ -68,6 +68,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
     private WordDbHelper dbHelper = new WordDbHelper(this);
     private ListView listViewOfWords;
+    private View emptyView;
     WordCursorAdapter cursorAdapter;
 
 
@@ -81,6 +82,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         getPermissionToWriteExternalStorage();
 
         listViewOfWords = (ListView) findViewById(R.id.listOfWords);
+        emptyView = findViewById(R.id.empty_view);
+        listViewOfWords.setEmptyView(emptyView);
 
 
         cursorAdapter = new WordCursorAdapter(this, null);
@@ -112,6 +115,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getMenuInflater().inflate(R.menu.menu_words_catalog, menu);
         cursorAdapter.notifyDataSetChanged();
         return true;

@@ -125,16 +125,6 @@ public class WordCursorAdapter extends CursorAdapter implements Serializable{
 
         selectItems(viewHolder, position, itemID);
 
-//        if(viewHolder.checkBox.getVisibility() == View.VISIBLE) {
-//            if (viewHolder.checkBox.isChecked()) {
-//                //Toast.makeText(context, "Selected item: " + itemID, Toast.LENGTH_SHORT).show();
-//                list.selectItemById(itemID);
-//            } else {
-//                //Toast.makeText(context, "Unselected item: " + itemID, Toast.LENGTH_SHORT).show();
-//                list.unselectItemById(itemID);
-//            }
-//        }
-
     }
 
     private void selectItems(ViewHolder view, int position, int id) {

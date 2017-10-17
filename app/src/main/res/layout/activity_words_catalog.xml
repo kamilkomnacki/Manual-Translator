@@ -27,7 +27,34 @@
     android:orientation="vertical"
     tools:context="com.komnacki.manualtranslator.WordsCatalogActivity">
 
-
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp">
+        <ImageView
+            android:id="@+id/empty_dictionary_image"
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:layout_gravity="center"
+            android:src="@drawable/empty_dictionary"/>
+        <TextView
+            android:id="@+id/empty_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Your dictionary is empty"
+            android:textAppearance="?android:textAppearanceMedium"/>
+        <TextView
+            android:id="@+id/empty_subtitle_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Click on the button below to add new record..."
+            android:textAppearance="?android:textAppearanceSmall" />
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
