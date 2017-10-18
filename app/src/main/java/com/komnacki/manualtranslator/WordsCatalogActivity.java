@@ -69,9 +69,8 @@ public class WordsCatalogActivity extends AppCompatActivity implements
     private WordDbHelper dbHelper = new WordDbHelper(this);
     private ListView listViewOfWords;
     private View emptyView;
+    FloatingActionButton btn_floatnigBtn_add;
     WordCursorAdapter cursorAdapter;
-
-
 
 
     @Override
@@ -81,6 +80,15 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
         getPermissionToWriteExternalStorage();
 
+        btn_floatnigBtn_add = (FloatingActionButton) findViewById(R.id.floatingButton_catalogActivity_add);
+        btn_floatnigBtn_add.setVisibility(View.VISIBLE);
+        btn_floatnigBtn_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                insertNewWord();
+            }
+        });
+
         listViewOfWords = (ListView) findViewById(R.id.listOfWords);
         emptyView = findViewById(R.id.empty_view);
         listViewOfWords.setEmptyView(emptyView);
@@ -89,6 +97,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         cursorAdapter = new WordCursorAdapter(this, null);
         listViewOfWords.setAdapter(cursorAdapter);
         listViewOfWords.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
 
 
         listViewOfWords.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -141,19 +150,16 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         final LinearLayout deletePanel = (LinearLayout) findViewById(R.id.linearL_wordCatalog_bottomDeletePanel);
         final Button btn_selectAll = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_selectAll);
         final Button btn_cancelDelete = (Button) findViewById(R.id.btn_wordCatalog_deletePanel_cancelDelete);
-        final FloatingActionButton floatingBTN_delete = (FloatingActionButton) findViewById(R.id.floatingButton_catalogActivity_delete);
+        final FloatingActionButton btn_floatingBtn_delete = (FloatingActionButton) findViewById(R.id.floatingButton_catalogActivity_delete);
 
+        cursorAdapter.setCheckboxesVisible(true);
         btn_onOptionMenu_delete.setVisible(false);
         deletePanel.setVisibility(View.VISIBLE);
-        floatingBTN_delete.setVisibility(View.VISIBLE);
-        cursorAdapter.setCheckboxesVisible(true);
+        btn_floatnigBtn_add.setVisibility(View.GONE);
+        btn_floatingBtn_delete.setVisibility(View.VISIBLE);
         cursorAdapter.list.init(cursorAdapter.getCursor());
         cursorAdapter.notifyDataSetChanged();
 
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
 
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
@@ -164,20 +170,19 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                         cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.btn_wordCatalog_deletePanel_cancelDelete:
+                        cursorAdapter.setCheckboxesVisible(false);
                         btn_onOptionMenu_delete.setVisible(true);
                         deletePanel.setVisibility(View.GONE);
-                        floatingBTN_delete.setVisibility(View.GONE);
-                        cursorAdapter.setCheckboxesVisible(false);
+                        btn_floatingBtn_delete.setVisibility(View.GONE);
+                        btn_floatnigBtn_add.setVisibility(View.VISIBLE);
                         cursorAdapter.unselectAll();
                         cursorAdapter.notifyDataSetChanged();
                         break;
                     case R.id.floatingButton_catalogActivity_delete:
+                        deleteConfirmation(cursorAdapter.list.getSelectedItemsID().size());
 
-                        showDeleteConfirmationDialog(cursorAdapter.list.getSelectedItemsID().size());
 
                         //Toast.makeText(getApplicationContext(), "Selected items: " + itemsToDelete., Toast.LENGTH_LONG).show();
-
-
 
                         break;
                 }
@@ -187,12 +192,14 @@ public class WordsCatalogActivity extends AppCompatActivity implements
         };
 
 
-        floatingBTN_delete.setOnClickListener(clickListener);
+
+        btn_floatingBtn_delete.setOnClickListener(clickListener);
         btn_cancelDelete.setOnClickListener(clickListener);
         btn_selectAll.setOnClickListener(clickListener);
     }
 
-    private void showDeleteConfirmationDialog(int amountOfWordsToDelete) {
+
+    private void deleteConfirmation(int amountOfWordsToDelete) {
         if(amountOfWordsToDelete > 0){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             //--------------------------------------------------------------------------------------
@@ -204,6 +211,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     delete();
+
                 }
             });
             //------------------------CANCEL--------------------------------------------------------
@@ -215,8 +223,7 @@ public class WordsCatalogActivity extends AppCompatActivity implements
                     }
                 }
             });
-            //--------------------------------------------------------------------------------------
-            //--------------------------------------------------------------------------------------
+
 
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
@@ -237,6 +244,12 @@ public class WordsCatalogActivity extends AppCompatActivity implements
 
         cursorAdapter.unselectAll();
         cursorAdapter.notifyDataSetChanged();
+    }
+
+    private void insertNewWord(){
+        Intent intent = new Intent(WordsCatalogActivity.this, WordActivity.class);
+        intent.putExtra(EXTERNAL_STORAGE_STATE, (isExternalStorageWritable()));
+        startActivity(intent);
     }
 
     private void insertWord() {

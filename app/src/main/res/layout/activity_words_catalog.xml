@@ -104,4 +104,18 @@
         app:layout_anchor="@id/listOfWords"
         app:layout_anchorGravity="bottom|right|end"/>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingButton_catalogActivity_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:fitsSystemWindows="true"
+        android:src="@drawable/ic_action_add_word"
+        android:visibility="gone"
+        app:fabSize="normal"
+        app:layout_anchor="@id/listOfWords"
+        app:layout_anchorGravity="bottom|right|end"/>
+
 </android.support.design.widget.CoordinatorLayout>
